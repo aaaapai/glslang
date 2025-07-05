@@ -34,7 +34,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -DANDROID_PLATFORM=24 -DANDROID_ABI=$ANDROID_ABI -DCMAKE_SYSTEM_NAME=Android -DANDROID_TOOLCHAIN=clang -DANDROID_ARM_MODE=arm -DCMAKE_MAKE_PROGRAM=$ANDROID_NDK_LATEST_HOME/prebuilt/linux-x86_64/bin/make -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake
+          cmake .. -DANDROID_PLATFORM=24 -DANDROID_ABI=$ANDROID_ABI -DCMAKE_SYSTEM_NAME=Android -DANDROID_TOOLCHAIN=clang -DANDROID_ARM_MODE=arm -DCMAKE_MAKE_PROGRAM=$ANDROID_NDK_LATEST_HOME/prebuilt/linux-x86_64/bin/make -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_LATEST_HOME/build/cmake/android.toolchain.cmake -DGLSLANG_ENABLE_INSTALL=ON -DGLSLANG_TESTS=OFF
 
 
       - name: Build SPIRV-Cross for Android ARM64
@@ -43,7 +43,6 @@ jobs:
         run: |
           cmake --build .. --config Release --parallel 4
           cmake --build .. --config Release --target install
-           
           find ./output -name '*' -execdir $ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip {} \;
 
       - uses: actions/upload-artifact@main
