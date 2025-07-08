@@ -52,7 +52,7 @@ jobs:
         run: |
           cmake --build . --config Release --parallel 4
           cmake --build . --config Release --target install
-          find ./output -name '*' -execdir $ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip {} \;
+          find ./output/lib -name '*' -execdir $ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip {} \;
 
       - uses: actions/upload-artifact@main
         with:
