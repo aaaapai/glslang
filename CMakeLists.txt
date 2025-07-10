@@ -53,7 +53,7 @@ include(CMakePackageConfigHelpers)
 # Needed for cmake_dependent_option macro
 include(CMakeDependentOption)
 
-option(BUILD_EXTERNAL "Build external dependencies in /External" OFF)
+option(BUILD_EXTERNAL "Build external dependencies in /External" ON)
 option(BUILD_WERROR "Enable warnings as errors (default is OFF)" OFF)
 
 set(LIB_TYPE STATIC)
