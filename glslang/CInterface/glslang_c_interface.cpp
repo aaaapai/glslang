@@ -244,7 +244,7 @@ c_shader_target_language_version(glslang_target_language_version_t target_langua
     default:
         break;
     }
-    return glslang::EShTargetSpv_1_0;
+    return glslang::EShTargetSpv_1_6;
 }
 
 static glslang::EShClient c_shader_client(glslang_client_t client)
@@ -278,7 +278,7 @@ static glslang::EShTargetClientVersion c_shader_client_version(glslang_target_cl
         break;
     }
 
-    return glslang::EShTargetVulkan_1_0;
+    return glslang::EShTargetOpenGL_450;
 }
 
 static glslang::EShTargetLanguage c_shader_target_language(glslang_target_language_t target_language)
@@ -373,9 +373,6 @@ GLSLANG_EXPORT void glslang_shader_set_options(glslang_shader_t* shader, int opt
         shader->shader->setAutoMapLocations(true);
     }
 
-    if (options & GLSLANG_SHADER_VULKAN_RULES_RELAXED) {
-        shader->shader->setEnvInputVulkanRulesRelaxed();
-    }
 }
 
 GLSLANG_EXPORT void glslang_shader_set_glsl_version(glslang_shader_t* shader, int version)
