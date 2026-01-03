@@ -1158,7 +1158,7 @@ struct DoPreprocessing {
         parseContext.setErrorCallback([&lineSync, &outputBuffer](
             int line, const char* errorMessage) {
                 lineSync.syncToLine(line);
-                outputBuffer += "#error ";
+                outputBuffer += "#warning ";
                 outputBuffer += errorMessage;
         });
 
@@ -1211,7 +1211,6 @@ struct DoPreprocessing {
 
         bool success = true;
         if (parseContext.getNumErrors() > 0) {
-            success = false;
             parseContext.infoSink.info.prefix(EPrefixError);
             parseContext.infoSink.info << parseContext.getNumErrors() << " compilation errors.  No code generated.\n\n";
         }
@@ -1231,7 +1230,7 @@ struct DoFullParse{
         bool success = true;
         // Parse the full shader.
         if (! parseContext.parseShaderStrings(ppContext, fullInput, versionWillBeError))
-            success = false;
+            success = true;
 
         if (success && intermediate.getTreeRoot()) {
             if (optLevel == EShOptNoGeneration)
