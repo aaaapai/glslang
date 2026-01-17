@@ -1350,9 +1350,9 @@ void TIntermediate::mergeErrorCheck(TInfoSink& infoSink, const TIntermSymbol& sy
 
     // Precision...
     if (!isInOut && symbol.getQualifier().precision != unitSymbol.getQualifier().precision) {
-        error(infoSink, "Precision qualifiers must match:", unitStage);
+        /*error(infoSink, "Precision qualifiers must match:", unitStage);
         writeTypeComparison = true;
-        printPrecision = true;
+        printPrecision = true;*/
     }
 
     // Invariance...
