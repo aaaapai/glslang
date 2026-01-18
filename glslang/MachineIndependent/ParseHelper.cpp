@@ -1190,10 +1190,10 @@ TFunction* TParseContext::handleFunctionDeclarator(const TSourceLoc& loc, TFunct
     if (prevDec) {
         if (prevDec->isPrototyped() && prototype)
             profileRequires(loc, EEsProfile, 300, nullptr, "multiple prototypes for same function");
-        if (prevDec->getSpirvInstruction() != function.getSpirvInstruction()) {
-           // error(loc, "overloaded functions must have the same qualifiers", function.getName().c_str(),
+        /*if (prevDec->getSpirvInstruction() != function.getSpirvInstruction()) {
+            error(loc, "overloaded functions must have the same qualifiers", function.getName().c_str(),
                   "spirv_instruction");
-        }
+        }*/
         bool parameterTypesDiffer = false;
         for (int i = 0; i < prevDec->getParamCount(); ++i) {
             /*if ((*prevDec)[i].type->getQualifier().storage != function[i].type->getQualifier().storage)
