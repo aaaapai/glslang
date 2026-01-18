@@ -1205,7 +1205,7 @@ TFunction* TParseContext::handleFunctionDeclarator(const TSourceLoc& loc, TFunct
             if (*(*prevDec)[i].type != *function[i].type)
                 parameterTypesDiffer = true;
         }
-        if (!parameterTypesDiffer && prevDec->getType() != function.getType())
+        //if (!parameterTypesDiffer && prevDec->getType() != function.getType())
             //error(loc, "overloaded functions must have the same return type", function.getName().c_str(), "");
     }
 
