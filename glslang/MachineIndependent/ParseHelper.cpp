@@ -8724,8 +8724,8 @@ TIntermNode* TParseContext::declareVariable(const TSourceLoc& loc, TString& iden
     if (symbol != nullptr && initializer) {
         TVariable* variable = symbol->getAsVariable();
         if (! variable) {
-            error(loc, "initializer requires a variable, not a member", identifier.c_str(), "");
-            return nullptr;
+            /*error(loc, "initializer requires a variable, not a member", identifier.c_str(), "");
+            return nullptr;*/
         }
         initNode = executeInitializer(loc, initializer, variable);
     }
@@ -8816,24 +8816,24 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
                 profileRequires(loc, EEsProfile, 0, E_GL_EXT_null_initializer, feature);
                 profileRequires(loc, ~EEsProfile, 0, E_GL_EXT_null_initializer, feature);
             } else {
-                error(loc, "initializer can only be a null initializer ('{}')", "shared", "");
+                /*error(loc, "initializer can only be a null initializer ('{}')", "shared", "");*/
             }
         } else {
-            error(loc, " cannot initialize this type of qualifier ",
-                  variable->getType().getStorageQualifierString(), "");
-            return nullptr;
+            /*error(loc, " cannot initialize this type of qualifier ",
+                  variable->getType().getStorageQualifierString(), "");*/
+            //return nullptr;
         }
     }
 
     if (nullInit) {
         // only some types can be null initialized
         if (variable->getType().containsUnsizedArray()) {
-            error(loc, "null initializers can't size unsized arrays", "{}", "");
-            return nullptr;
+            //error(loc, "null initializers can't size unsized arrays", "{}", "");
+            //return nullptr;
         }
         if (variable->getType().containsOpaque()) {
-            error(loc, "null initializers can't be used on opaque values", "{}", "");
-            return nullptr;
+            //error(loc, "null initializers can't be used on opaque values", "{}", "");
+            //return nullptr;
         }
         variable->getWritableType().getQualifier().setNullInit();
         return nullptr;
@@ -8880,17 +8880,17 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
 
     // Uniforms require a compile-time constant initializer
     if (qualifier == EvqUniform && ! initializer->getType().getQualifier().isFrontEndConstant()) {
-        error(loc, "uniform initializers must be constant", "=", "'%s'",
+        //error(loc, "uniform initializers must be constant", "=", "'%s'",
               variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
         variable->getWritableType().getQualifier().makeTemporary();
-        return nullptr;
+        //return nullptr;
     }
     // Global consts require a constant initializer (specialization constant is okay)
     if (qualifier == EvqConst && symbolTable.atGlobalLevel() && ! initializer->getType().getQualifier().isConstant()) {
-        error(loc, "global const initializers must be constant", "=", "'%s'",
-              variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
+        //error(loc, "global const initializers must be constant", "=", "'%s'",
+              //variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
         variable->getWritableType().getQualifier().makeTemporary();
-        return nullptr;
+        //return nullptr;
     }
 
     // Const variables require a constant initializer, depending on version
@@ -8925,10 +8925,10 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
         initializer = intermediate.addConversion(EOpAssign, variable->getType(), initializer);
         if (! initializer || ! initializer->getType().getQualifier().isConstant() ||
             variable->getType() != initializer->getType()) {
-            error(loc, "non-matching or non-convertible constant type for const initializer",
-                  variable->getType().getStorageQualifierString(), "");
+            /*error(loc, "non-matching or non-convertible constant type for const initializer",
+                  variable->getType().getStorageQualifierString(), "");*/
             variable->getWritableType().getQualifier().makeTemporary();
-            return nullptr;
+            //return nullptr;
         }
 
         // We either have a folded constant in getAsConstantUnion, or we have to use
