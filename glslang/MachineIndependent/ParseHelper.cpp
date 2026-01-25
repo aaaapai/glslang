@@ -8881,15 +8881,15 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
     // Uniforms require a compile-time constant initializer
     if (qualifier == EvqUniform && ! initializer->getType().getQualifier().isFrontEndConstant()) {
         //error(loc, "uniform initializers must be constant", "=", "'%s'",
-              variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
-        variable->getWritableType().getQualifier().makeTemporary();
+              /*variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
+        variable->getWritableType().getQualifier().makeTemporary();*/
         //return nullptr;
     }
     // Global consts require a constant initializer (specialization constant is okay)
     if (qualifier == EvqConst && symbolTable.atGlobalLevel() && ! initializer->getType().getQualifier().isConstant()) {
         //error(loc, "global const initializers must be constant", "=", "'%s'",
               //variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
-        variable->getWritableType().getQualifier().makeTemporary();
+        //variable->getWritableType().getQualifier().makeTemporary();
         //return nullptr;
     }
 
@@ -8927,7 +8927,7 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
             variable->getType() != initializer->getType()) {
             /*error(loc, "non-matching or non-convertible constant type for const initializer",
                   variable->getType().getStorageQualifierString(), "");*/
-            variable->getWritableType().getQualifier().makeTemporary();
+            //variable->getWritableType().getQualifier().makeTemporary();
             //return nullptr;
         }
 
