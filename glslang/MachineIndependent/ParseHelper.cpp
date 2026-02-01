@@ -7667,7 +7667,7 @@ const TFunction* TParseContext::findFunctionExact(const TSourceLoc& loc, const T
 {
     TSymbol* symbol = symbolTable.find(call.getMangledName(), &builtIn);
     if (symbol == nullptr) {
-        error(loc, "no matching overloaded function found", call.getName().c_str(), "");
+        warn(loc, "no matching overloaded function found", call.getName().c_str(), "");
 
         return nullptr;
     }
@@ -7731,14 +7731,14 @@ const TFunction* TParseContext::findFunction120(const TSourceLoc& loc, const TFu
         if (possibleMatch) {
             if (candidate) {
                 // our second match, meaning ambiguity
-                error(loc, "ambiguous function signature match: multiple signatures match under implicit type conversion", call.getName().c_str(), "");
+                warn(loc, "ambiguous function signature match: multiple signatures match under implicit type conversion", call.getName().c_str(), "");
             } else
                 candidate = &function;
         }
     }
 
     if (candidate == nullptr)
-        error(loc, "no matching overloaded function found", call.getName().c_str(), "");
+        warn(loc, "no matching overloaded function found", call.getName().c_str(), "");
 
     return candidate;
 }
@@ -7882,9 +7882,9 @@ const TFunction* TParseContext::findFunction400(const TSourceLoc& loc, const TFu
     const TFunction* bestMatch = selectFunction(candidateList, call, convertible, better, tie);
 
     if (bestMatch == nullptr)
-        error(loc, "no matching overloaded function found", call.getName().c_str(), "");
+        warn(loc, "no matching overloaded function found", call.getName().c_str(), "");
     else if (tie)
-        error(loc, "ambiguous best function under implicit type conversion", call.getName().c_str(), "");
+        warn(loc, "ambiguous best function under implicit type conversion", call.getName().c_str(), "");
 
     return bestMatch;
 }
@@ -7988,9 +7988,9 @@ const TFunction* TParseContext::findFunctionExplicitTypes(const TSourceLoc& loc,
     const TFunction* bestMatch = selectFunction(candidateList, call, convertible, better, tie);
 
     if (bestMatch == nullptr)
-        error(loc, "no matching overloaded function found", call.getName().c_str(), "");
+        warn(loc, "no matching overloaded function found", call.getName().c_str(), "");
     else if (tie)
-        error(loc, "ambiguous best function under implicit type conversion", call.getName().c_str(), "");
+        warn(loc, "ambiguous best function under implicit type conversion", call.getName().c_str(), "");
 
     return bestMatch;
 }
