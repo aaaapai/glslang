@@ -3557,7 +3557,7 @@ void TParseContext::variableCheck(TIntermTyped*& nodePtr)
         } else if (spvVersion.vulkan != 0 && symbol->getName() == "gl_InstanceID") {
           extraInfoFormat = "(Did you mean gl_InstanceIndex?)";
         }
-        error(symbol->getLoc(), "undeclared identifier", symbol->getName().c_str(), extraInfoFormat);
+        warn(symbol->getLoc(), "undeclared identifier", symbol->getName().c_str(), extraInfoFormat);
 
         // Add to symbol table to prevent future error messages on the same name
         if (symbol->getName().size() > 0) {
