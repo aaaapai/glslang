@@ -3514,8 +3514,8 @@ void TParseContext::checkPrecisionQualifier(const TSourceLoc& loc, TPrecisionQua
 //
 void TParseContext::assignError(const TSourceLoc& loc, const char* op, TString left, TString right)
 {
-    error(loc, "", op, "cannot convert from '%s' to '%s'",
-          right.c_str(), left.c_str());
+    /*error(loc, "", op, "cannot convert from '%s' to '%s'",
+          right.c_str(), left.c_str());*/
 }
 
 //
