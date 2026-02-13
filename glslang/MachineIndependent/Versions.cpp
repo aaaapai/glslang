@@ -221,19 +221,21 @@ void TParseVersions::initializeExtensionBehavior()
     extensionBehavior[E_GL_ARB_shader_bit_encoding] = EBhDisable;
     extensionBehavior[E_GL_ARB_shader_image_size] = EBhDisable;
     extensionBehavior[E_GL_ARB_shader_storage_buffer_object] = EBhDisable;
-    extensionBehavior[E_GL_ARB_shading_language_packing] = EBhDisable;
-    extensionBehavior[E_GL_ARB_texture_query_lod] = EBhDisable;
-    extensionBehavior[E_GL_ARB_vertex_attrib_64bit] = EBhDisable;
-    extensionBehavior[E_GL_NV_gpu_shader5] = EBhDisable;
-    extensionBehavior[E_GL_ARB_draw_instanced] = EBhDisable;
-    extensionBehavior[E_GL_ARB_bindless_texture] = EBhDisable;
-    extensionBehavior[E_GL_ARB_fragment_coord_conventions] = EBhDisable;
+    extensionBehavior[E_GL_ARB_shading_language_packing]     = EBhDisable;
+    extensionBehavior[E_GL_ARB_texture_query_lod]            = EBhDisable;
+    extensionBehavior[E_GL_ARB_vertex_attrib_64bit]          = EBhDisable;
+    extensionBehavior[E_GL_NV_gpu_shader5]                   = EBhDisable;
+    extensionBehavior[E_GL_ARB_draw_instanced]               = EBhDisable;
+    extensionBehavior[E_GL_ARB_bindless_texture]             = EBhDisable;
+    extensionBehavior[E_GL_ARB_fragment_coord_conventions]   = EBhDisable;
+    extensionBehavior[E_GL_ARB_conservative_depth]           = EBhDisable;
 
-    extensionBehavior[E_GL_KHR_shader_subgroup_basic] = EBhDisable;
-    extensionBehavior[E_GL_KHR_shader_subgroup_vote] = EBhDisable;
-    extensionBehavior[E_GL_KHR_shader_subgroup_arithmetic] = EBhDisable;
-    extensionBehavior[E_GL_KHR_shader_subgroup_ballot] = EBhDisable;
-    extensionBehavior[E_GL_KHR_shader_subgroup_shuffle] = EBhDisable;
+
+    extensionBehavior[E_GL_KHR_shader_subgroup_basic]            = EBhDisable;
+    extensionBehavior[E_GL_KHR_shader_subgroup_vote]             = EBhDisable;
+    extensionBehavior[E_GL_KHR_shader_subgroup_arithmetic]       = EBhDisable;
+    extensionBehavior[E_GL_KHR_shader_subgroup_ballot]           = EBhDisable;
+    extensionBehavior[E_GL_KHR_shader_subgroup_shuffle]          = EBhDisable;
     extensionBehavior[E_GL_KHR_shader_subgroup_shuffle_relative] = EBhDisable;
     extensionBehavior[E_GL_KHR_shader_subgroup_rotate] = EBhDisable;
     extensionBehavior[E_GL_KHR_shader_subgroup_clustered] = EBhDisable;
@@ -287,42 +289,45 @@ void TParseVersions::initializeExtensionBehavior()
     extensionBehavior[E_GL_AMD_gpu_shader_half_float_fetch] = EBhDisable;
     extensionBehavior[E_GL_AMD_shader_early_and_late_fragment_tests] = EBhDisable;
 
-    extensionBehavior[E_GL_INTEL_shader_integer_functions2] = EBhDisable;
+    extensionBehavior[E_GL_INTEL_shader_integer_functions2]          = EBhDisable;
 
-    extensionBehavior[E_GL_NV_sample_mask_override_coverage] = EBhDisable;
-    extensionBehavior[E_SPV_NV_geometry_shader_passthrough] = EBhDisable;
-    extensionBehavior[E_GL_NV_viewport_array2] = EBhDisable;
-    extensionBehavior[E_GL_NV_stereo_view_rendering] = EBhDisable;
-    extensionBehavior[E_GL_NVX_multiview_per_view_attributes] = EBhDisable;
-    extensionBehavior[E_GL_NV_shader_atomic_int64] = EBhDisable;
-    extensionBehavior[E_GL_NV_conservative_raster_underestimation] = EBhDisable;
-    extensionBehavior[E_GL_NV_shader_noperspective_interpolation] = EBhDisable;
-    extensionBehavior[E_GL_NV_shader_subgroup_partitioned] = EBhDisable;
-    extensionBehavior[E_GL_NV_shading_rate_image] = EBhDisable;
-    extensionBehavior[E_GL_NV_ray_tracing] = EBhDisable;
-    extensionBehavior[E_GL_NV_ray_tracing_motion_blur] = EBhDisable;
-    extensionBehavior[E_GL_NV_fragment_shader_barycentric] = EBhDisable;
-    extensionBehavior[E_GL_NV_compute_shader_derivatives] = EBhDisable;
-    extensionBehavior[E_GL_NV_shader_texture_footprint] = EBhDisable;
-    extensionBehavior[E_GL_NV_mesh_shader] = EBhDisable;
-    extensionBehavior[E_GL_NV_cooperative_matrix] = EBhDisable;
-    extensionBehavior[E_GL_NV_shader_sm_builtins] = EBhDisable;
-    extensionBehavior[E_GL_NV_integer_cooperative_matrix] = EBhDisable;
-    extensionBehavior[E_GL_NV_shader_invocation_reorder] = EBhDisable;
-    extensionBehavior[E_GL_NV_displacement_micromap] = EBhDisable;
-    extensionBehavior[E_GL_NV_shader_atomic_fp16_vector] = EBhDisable;
-    extensionBehavior[E_GL_NV_cooperative_matrix2] = EBhDisable;
-    extensionBehavior[E_GL_NV_cluster_acceleration_structure] = EBhDisable;
-    extensionBehavior[E_GL_NV_linear_swept_spheres] = EBhDisable;
+    extensionBehavior[E_GL_NV_sample_mask_override_coverage]         = EBhDisable;
+    extensionBehavior[E_SPV_NV_geometry_shader_passthrough]          = EBhDisable;
+    extensionBehavior[E_GL_NV_viewport_array2]                       = EBhDisable;
+    extensionBehavior[E_GL_NV_stereo_view_rendering]                 = EBhDisable;
+    extensionBehavior[E_GL_NVX_multiview_per_view_attributes]        = EBhDisable;
+    extensionBehavior[E_GL_NV_shader_atomic_int64]                   = EBhDisable;
+    extensionBehavior[E_GL_NV_conservative_raster_underestimation]   = EBhDisable;
+    extensionBehavior[E_GL_NV_shader_noperspective_interpolation]    = EBhDisable;
+    extensionBehavior[E_GL_NV_shader_subgroup_partitioned]           = EBhDisable;
+    extensionBehavior[E_GL_NV_shading_rate_image]                    = EBhDisable;
+    extensionBehavior[E_GL_NV_ray_tracing]                           = EBhDisable;
+    extensionBehavior[E_GL_NV_ray_tracing_motion_blur]               = EBhDisable;
+    extensionBehavior[E_GL_NV_fragment_shader_barycentric]           = EBhDisable;
+    extensionBehavior[E_GL_NV_compute_shader_derivatives]            = EBhDisable;
+    extensionBehavior[E_GL_NV_shader_texture_footprint]              = EBhDisable;
+    extensionBehavior[E_GL_NV_mesh_shader]                           = EBhDisable;
+    extensionBehavior[E_GL_NV_cooperative_matrix]                    = EBhDisable;
+    extensionBehavior[E_GL_NV_shader_sm_builtins]                    = EBhDisable;
+    extensionBehavior[E_GL_NV_integer_cooperative_matrix]            = EBhDisable;
+    extensionBehavior[E_GL_NV_shader_invocation_reorder]             = EBhDisable;
+    extensionBehavior[E_GL_NV_displacement_micromap]                 = EBhDisable;
+    extensionBehavior[E_GL_NV_shader_atomic_fp16_vector]             = EBhDisable;
+    extensionBehavior[E_GL_NV_cooperative_matrix2]                   = EBhDisable;
+    extensionBehavior[E_GL_NV_cluster_acceleration_structure]        = EBhDisable;
+    extensionBehavior[E_GL_NV_linear_swept_spheres]                  = EBhDisable;
+    extensionBehavior[E_GL_NV_push_constant_bank]                    = EBhDisable;
+    extensionBehavior[E_GL_NV_explicit_typecast]                     = EBhDisable;
 
     // ARM
     extensionBehavior[E_GL_ARM_shader_core_builtins] = EBhDisable;
     extensionBehavior[E_GL_ARM_tensors] = EBhDisable;
 
     // QCOM
-    extensionBehavior[E_GL_QCOM_image_processing] = EBhDisable;
-    extensionBehavior[E_GL_QCOM_image_processing2] = EBhDisable;
-    extensionBehavior[E_GL_QCOM_tile_shading] = EBhDisable;
+    extensionBehavior[E_GL_QCOM_image_processing]                    = EBhDisable;
+    extensionBehavior[E_GL_QCOM_image_processing2]                   = EBhDisable;
+    extensionBehavior[E_GL_QCOM_tile_shading]                        = EBhDisable;
+    extensionBehavior[E_GL_QCOM_cooperative_matrix_conversion]       = EBhDisable;
 
     // AEP
     extensionBehavior[E_GL_ANDROID_extension_pack_es31a] = EBhDisable;
@@ -331,16 +336,17 @@ void TParseVersions::initializeExtensionBehavior()
     extensionBehavior[E_GL_OES_shader_image_atomic] = EBhDisable;
     extensionBehavior[E_GL_OES_shader_multisample_interpolation] = EBhDisable;
     extensionBehavior[E_GL_OES_texture_storage_multisample_2d_array] = EBhDisable;
-    extensionBehavior[E_GL_EXT_geometry_shader] = EBhDisable;
-    extensionBehavior[E_GL_EXT_geometry_point_size] = EBhDisable;
-    extensionBehavior[E_GL_EXT_gpu_shader5] = EBhDisable;
-    extensionBehavior[E_GL_EXT_primitive_bounding_box] = EBhDisable;
-    extensionBehavior[E_GL_EXT_shader_io_blocks] = EBhDisable;
-    extensionBehavior[E_GL_EXT_tessellation_shader] = EBhDisable;
-    extensionBehavior[E_GL_EXT_tessellation_point_size] = EBhDisable;
-    extensionBehavior[E_GL_EXT_texture_buffer] = EBhDisable;
-    extensionBehavior[E_GL_EXT_texture_cube_map_array] = EBhDisable;
-    extensionBehavior[E_GL_EXT_null_initializer] = EBhDisable;
+    extensionBehavior[E_GL_EXT_geometry_shader]                      = EBhDisable;
+    extensionBehavior[E_GL_EXT_geometry_point_size]                  = EBhDisable;
+    extensionBehavior[E_GL_EXT_gpu_shader5]                          = EBhDisable;
+    extensionBehavior[E_GL_EXT_primitive_bounding_box]               = EBhDisable;
+    extensionBehavior[E_GL_EXT_shader_io_blocks]                     = EBhDisable;
+    extensionBehavior[E_GL_EXT_tessellation_shader]                  = EBhDisable;
+    extensionBehavior[E_GL_EXT_tessellation_point_size]              = EBhDisable;
+    extensionBehavior[E_GL_EXT_texture_buffer]                       = EBhDisable;
+    extensionBehavior[E_GL_EXT_texture_cube_map_array]               = EBhDisable;
+    extensionBehavior[E_GL_EXT_null_initializer]                     = EBhDisable;
+    extensionBehavior[E_GL_EXT_descriptor_heap]                      = EBhDisable;
 
     // OES matching AEP
     extensionBehavior[E_GL_OES_geometry_shader] = EBhDisable;
@@ -364,24 +370,28 @@ void TParseVersions::initializeExtensionBehavior()
     extensionBehavior[E_GL_EXT_ray_cull_mask] = EBhDisable;
     extensionBehavior[E_GL_EXT_blend_func_extended] = EBhDisable;
     extensionBehavior[E_GL_EXT_shader_implicit_conversions] = EBhDisable;
-    extensionBehavior[E_GL_EXT_fragment_shading_rate] = EBhDisable;
-    extensionBehavior[E_GL_EXT_shader_image_int64] = EBhDisable;
-    extensionBehavior[E_GL_EXT_terminate_invocation] = EBhDisable;
-    extensionBehavior[E_GL_EXT_shared_memory_block] = EBhDisable;
-    extensionBehavior[E_GL_EXT_spirv_intrinsics] = EBhDisable;
-    extensionBehavior[E_GL_EXT_mesh_shader] = EBhDisable;
-    extensionBehavior[E_GL_EXT_opacity_micromap] = EBhDisable;
-    extensionBehavior[E_GL_EXT_shader_quad_control] = EBhDisable;
-    extensionBehavior[E_GL_EXT_ray_tracing_position_fetch] = EBhDisable;
-    extensionBehavior[E_GL_EXT_shader_tile_image] = EBhDisable;
-    extensionBehavior[E_GL_EXT_texture_shadow_lod] = EBhDisable;
-    extensionBehavior[E_GL_EXT_draw_instanced] = EBhDisable;
-    extensionBehavior[E_GL_EXT_texture_array] = EBhDisable;
-    extensionBehavior[E_GL_EXT_texture_offset_non_const] = EBhDisable;
-    extensionBehavior[E_GL_EXT_nontemporal_keyword] = EBhDisable;
-    extensionBehavior[E_GL_EXT_bfloat16] = EBhDisable;
-    extensionBehavior[E_GL_EXT_float_e4m3] = EBhDisable;
-    extensionBehavior[E_GL_EXT_float_e5m2] = EBhDisable;
+    extensionBehavior[E_GL_EXT_fragment_shading_rate]       = EBhDisable;
+    extensionBehavior[E_GL_EXT_shader_image_int64]          = EBhDisable;
+    extensionBehavior[E_GL_EXT_terminate_invocation]        = EBhDisable;
+    extensionBehavior[E_GL_EXT_shared_memory_block]         = EBhDisable;
+    extensionBehavior[E_GL_EXT_spirv_intrinsics]            = EBhDisable;
+    extensionBehavior[E_GL_EXT_mesh_shader]                 = EBhDisable;
+    extensionBehavior[E_GL_EXT_opacity_micromap]            = EBhDisable;
+    extensionBehavior[E_GL_EXT_shader_quad_control]         = EBhDisable;
+    extensionBehavior[E_GL_EXT_ray_tracing_position_fetch]  = EBhDisable;
+    extensionBehavior[E_GL_EXT_shader_tile_image]           = EBhDisable;
+    extensionBehavior[E_GL_EXT_texture_shadow_lod]          = EBhDisable;
+    extensionBehavior[E_GL_EXT_draw_instanced]              = EBhDisable;
+    extensionBehavior[E_GL_EXT_texture_array]               = EBhDisable;
+    extensionBehavior[E_GL_EXT_texture_offset_non_const]    = EBhDisable;
+    extensionBehavior[E_GL_EXT_nontemporal_keyword]         = EBhDisable;
+    extensionBehavior[E_GL_EXT_bfloat16]                    = EBhDisable;
+    extensionBehavior[E_GL_EXT_float_e4m3]                  = EBhDisable;
+    extensionBehavior[E_GL_EXT_float_e5m2]                  = EBhDisable;
+    extensionBehavior[E_GL_EXT_uniform_buffer_unsized_array] = EBhDisable;
+    extensionBehavior[E_GL_EXT_shader_64bit_indexing]       = EBhDisable;
+    extensionBehavior[E_GL_EXT_conservative_depth]          = EBhDisable;
+    extensionBehavior[E_GL_EXT_long_vector]                 = EBhDisable;
 
     // OVR extensions
     extensionBehavior[E_GL_OVR_multiview] = EBhDisable;
@@ -407,6 +417,8 @@ void TParseVersions::initializeExtensionBehavior()
 
     extensionBehavior[E_GL_EXT_integer_dot_product] = EBhDisable;
 
+    extensionBehavior[E_GL_EXT_shader_invocation_reorder]              = EBhDisable;
+
     // Record extensions not for spv.
     spvUnsupportedExt.push_back(E_GL_ARB_bindless_texture);
 }
@@ -416,61 +428,66 @@ void TParseVersions::initializeExtensionBehavior()
 void TParseVersions::getPreamble(std::string& preamble)
 {
     if (isEsProfile()) {
-        preamble = "#define GL_ES 1\n"
-                   "#define GL_FRAGMENT_PRECISION_HIGH 1\n"
-                   "#define GL_OES_texture_3D 1\n"
-                   "#define GL_OES_standard_derivatives 1\n"
-                   "#define GL_EXT_frag_depth 1\n"
-                   "#define GL_OES_EGL_image_external 1\n"
-                   "#define GL_OES_EGL_image_external_essl3 1\n"
-                   "#define GL_EXT_YUV_target 1\n"
-                   "#define GL_EXT_shader_texture_lod 1\n"
-                   "#define GL_EXT_shadow_samplers 1\n"
-                   "#define GL_EXT_fragment_shading_rate 1\n"
+        preamble =
+            "#define GL_ES 1\n"
+            "#define GL_FRAGMENT_PRECISION_HIGH 1\n"
+            "#define GL_OES_texture_3D 1\n"
+            "#define GL_OES_standard_derivatives 1\n"
+            "#define GL_EXT_frag_depth 1\n"
+            "#define GL_OES_EGL_image_external 1\n"
+            "#define GL_OES_EGL_image_external_essl3 1\n"
+            "#define GL_EXT_YUV_target 1\n"
+            "#define GL_EXT_shader_texture_lod 1\n"
+            "#define GL_EXT_shadow_samplers 1\n"
+            "#define GL_EXT_fragment_shading_rate 1\n"
+            "#define GL_EXT_conservative_depth 1\n"
 
-                   // AEP
-                   "#define GL_ANDROID_extension_pack_es31a 1\n"
-                   "#define GL_OES_sample_variables 1\n"
-                   "#define GL_OES_shader_image_atomic 1\n"
-                   "#define GL_OES_shader_multisample_interpolation 1\n"
-                   "#define GL_OES_texture_storage_multisample_2d_array 1\n"
-                   "#define GL_EXT_geometry_shader 1\n"
-                   "#define GL_EXT_geometry_point_size 1\n"
-                   "#define GL_EXT_gpu_shader5 1\n"
-                   "#define GL_EXT_primitive_bounding_box 1\n"
-                   "#define GL_EXT_shader_io_blocks 1\n"
-                   "#define GL_EXT_tessellation_shader 1\n"
-                   "#define GL_EXT_tessellation_point_size 1\n"
-                   "#define GL_EXT_texture_buffer 1\n"
-                   "#define GL_EXT_texture_cube_map_array 1\n"
-                   "#define GL_EXT_shader_implicit_conversions 1\n"
-                   "#define GL_EXT_shader_integer_mix 1\n"
-                   "#define GL_EXT_blend_func_extended 1\n"
+            // AEP
+            "#define GL_ANDROID_extension_pack_es31a 1\n"
+            "#define GL_OES_sample_variables 1\n"
+            "#define GL_OES_shader_image_atomic 1\n"
+            "#define GL_OES_shader_multisample_interpolation 1\n"
+            "#define GL_OES_texture_storage_multisample_2d_array 1\n"
+            "#define GL_EXT_geometry_shader 1\n"
+            "#define GL_EXT_geometry_point_size 1\n"
+            "#define GL_EXT_gpu_shader5 1\n"
+            "#define GL_EXT_primitive_bounding_box 1\n"
+            "#define GL_EXT_shader_io_blocks 1\n"
+            "#define GL_EXT_tessellation_shader 1\n"
+            "#define GL_EXT_tessellation_point_size 1\n"
+            "#define GL_EXT_texture_buffer 1\n"
+            "#define GL_EXT_texture_cube_map_array 1\n"
+            "#define GL_EXT_shader_implicit_conversions 1\n"
+            "#define GL_EXT_shader_integer_mix 1\n"
+            "#define GL_EXT_blend_func_extended 1\n"
+            "#define GL_EXT_descriptor_heap 1\n"
 
-                   // OES matching AEP
-                   "#define GL_OES_geometry_shader 1\n"
-                   "#define GL_OES_geometry_point_size 1\n"
-                   "#define GL_OES_gpu_shader5 1\n"
-                   "#define GL_OES_primitive_bounding_box 1\n"
-                   "#define GL_OES_shader_io_blocks 1\n"
-                   "#define GL_OES_tessellation_shader 1\n"
-                   "#define GL_OES_tessellation_point_size 1\n"
-                   "#define GL_OES_texture_buffer 1\n"
-                   "#define GL_OES_texture_cube_map_array 1\n"
-                   "#define GL_EXT_shader_non_constant_global_initializers 1\n"
+            // OES matching AEP
+            "#define GL_OES_geometry_shader 1\n"
+            "#define GL_OES_geometry_point_size 1\n"
+            "#define GL_OES_gpu_shader5 1\n"
+            "#define GL_OES_primitive_bounding_box 1\n"
+            "#define GL_OES_shader_io_blocks 1\n"
+            "#define GL_OES_tessellation_shader 1\n"
+            "#define GL_OES_tessellation_point_size 1\n"
+            "#define GL_OES_texture_buffer 1\n"
+            "#define GL_OES_texture_cube_map_array 1\n"
+            "#define GL_EXT_shader_non_constant_global_initializers 1\n"
 
-                   "#define GL_QCOM_image_processing 1\n"
-                   "#define GL_QCOM_image_processing2 1\n"
-                   "#define GL_QCOM_tile_shading 1\n";
+            "#define GL_QCOM_image_processing 1\n"
+            "#define GL_QCOM_image_processing2 1\n"
+            "#define GL_QCOM_tile_shading 1\n"
+            "#define GL_QCOM_cooperative_matrix_conversion 1\n"
+            ;
 
-        if (version >= 300) {
-            preamble += "#define GL_NV_shader_noperspective_interpolation 1\n";
-        }
-        if (version >= 310) {
-            preamble += "#define GL_EXT_null_initializer 1\n";
-            preamble += "#define GL_EXT_subgroup_uniform_control_flow 1\n";
-            preamble += "#define GL_EXT_maximal_reconvergence 1\n";
-        }
+            if (version >= 300) {
+                preamble += "#define GL_NV_shader_noperspective_interpolation 1\n";
+            }
+            if (version >= 310) {
+                preamble += "#define GL_EXT_null_initializer 1\n";
+                preamble += "#define GL_EXT_subgroup_uniform_control_flow 1\n";
+                preamble += "#define GL_EXT_maximal_reconvergence 1\n";
+            }
 
     } else { // !isEsProfile()
         preamble =
@@ -514,6 +531,7 @@ void TParseVersions::getPreamble(std::string& preamble)
             "#define GL_NV_gpu_shader5 1\n"
             "#define GL_ARB_draw_instanced 1\n"
             "#define GL_ARB_fragment_coord_conventions 1\n"
+            "#define GL_ARB_conservative_depth 1\n"
 
             "#define GL_EXT_shader_non_constant_global_initializers 1\n"
             "#define GL_EXT_shader_image_load_formatted 1\n"
@@ -588,10 +606,12 @@ void TParseVersions::getPreamble(std::string& preamble)
             "#define GL_NV_integer_cooperative_matrix 1\n"
             "#define GL_NV_shader_invocation_reorder 1\n"
             "#define GL_NV_cooperative_matrix2 1\n"
+            "#define GL_NV_explicit_typecast 1\n"
 
             "#define GL_QCOM_image_processing 1\n"
             "#define GL_QCOM_image_processing2 1\n"
             "#define GL_QCOM_tile_shading 1\n"
+            "#define GL_QCOM_cooperative_matrix_conversion 1\n"
 
             "#define GL_EXT_shader_explicit_arithmetic_types 1\n"
             "#define GL_EXT_shader_explicit_arithmetic_types_int8 1\n"
@@ -619,7 +639,13 @@ void TParseVersions::getPreamble(std::string& preamble)
             "#define GL_EXT_integer_dot_product 1\n"
             "#define GL_EXT_bfloat16 1\n"
             "#define GL_EXT_float_e5m2 1\n"
-            "#define GL_EXT_float_e4m3 1\n";
+            "#define GL_EXT_float_e4m3 1\n"
+            "#define GL_EXT_uniform_buffer_unsized_array 1\n"
+            "#define GL_EXT_shader_64bit_indexing 1\n"
+
+            "#define GL_EXT_shader_invocation_reorder 1\n"
+            "#define GL_EXT_descriptor_heap 1\n"
+            ;
 
         if (spvVersion.spv == 0) {
             preamble += "#define GL_ARB_bindless_texture 1\n";
@@ -642,10 +668,18 @@ void TParseVersions::getPreamble(std::string& preamble)
         }
     }
 
-    if ((!isEsProfile() && version >= 140) || (isEsProfile() && version >= 310)) {
-        preamble += "#define GL_EXT_device_group 1\n"
-                    "#define GL_EXT_multiview 1\n"
-                    "#define GL_NV_shader_sm_builtins 1\n";
+    if ((!isEsProfile() && version >= 460) ||
+        (isEsProfile() && version >= 320)) {
+        preamble += "#define GL_EXT_nontemporal_keyword 1\n";
+    }
+
+    if ((!isEsProfile() && version >= 140) ||
+        (isEsProfile() && version >= 310)) {
+        preamble +=
+            "#define GL_EXT_device_group 1\n"
+            "#define GL_EXT_multiview 1\n"
+            "#define GL_NV_shader_sm_builtins 1\n"
+            ;
     }
 
     if ((!isEsProfile() && version >= 130) || (isEsProfile() && version >= 300)) {
@@ -686,50 +720,21 @@ void TParseVersions::getPreamble(std::string& preamble)
     // GL_EXT_spirv_intrinsics
     if (!isEsProfile()) {
         switch (language) {
-        case EShLangVertex:
-            preamble += "#define GL_VERTEX_SHADER 1 \n";
-            break;
-        case EShLangTessControl:
-            preamble += "#define GL_TESSELLATION_CONTROL_SHADER 1 \n";
-            break;
-        case EShLangTessEvaluation:
-            preamble += "#define GL_TESSELLATION_EVALUATION_SHADER 1 \n";
-            break;
-        case EShLangGeometry:
-            preamble += "#define GL_GEOMETRY_SHADER 1 \n";
-            break;
-        case EShLangFragment:
-            preamble += "#define GL_FRAGMENT_SHADER 1 \n";
-            break;
-        case EShLangCompute:
-            preamble += "#define GL_COMPUTE_SHADER 1 \n";
-            break;
-        case EShLangRayGen:
-            preamble += "#define GL_RAY_GENERATION_SHADER_EXT 1 \n";
-            break;
-        case EShLangIntersect:
-            preamble += "#define GL_INTERSECTION_SHADER_EXT 1 \n";
-            break;
-        case EShLangAnyHit:
-            preamble += "#define GL_ANY_HIT_SHADER_EXT 1 \n";
-            break;
-        case EShLangClosestHit:
-            preamble += "#define GL_CLOSEST_HIT_SHADER_EXT 1 \n";
-            break;
-        case EShLangMiss:
-            preamble += "#define GL_MISS_SHADER_EXT 1 \n";
-            break;
-        case EShLangCallable:
-            preamble += "#define GL_CALLABLE_SHADER_EXT 1 \n";
-            break;
-        case EShLangTask:
-            preamble += "#define GL_TASK_SHADER_NV 1 \n";
-            break;
-        case EShLangMesh:
-            preamble += "#define GL_MESH_SHADER_NV 1 \n";
-            break;
-        default:
-            break;
+        case EShLangVertex:         preamble += "#define GL_VERTEX_SHADER 1 \n";                    break;
+        case EShLangTessControl:    preamble += "#define GL_TESSELLATION_CONTROL_SHADER 1 \n";      break;
+        case EShLangTessEvaluation: preamble += "#define GL_TESSELLATION_EVALUATION_SHADER 1 \n";   break;
+        case EShLangGeometry:       preamble += "#define GL_GEOMETRY_SHADER 1 \n";                  break;
+        case EShLangFragment:       preamble += "#define GL_FRAGMENT_SHADER 1 \n";                  break;
+        case EShLangCompute:        preamble += "#define GL_COMPUTE_SHADER 1 \n";                   break;
+        case EShLangRayGen:         preamble += "#define GL_RAY_GENERATION_SHADER_EXT 1 \n";        break;
+        case EShLangIntersect:      preamble += "#define GL_INTERSECTION_SHADER_EXT 1 \n";          break;
+        case EShLangAnyHit:         preamble += "#define GL_ANY_HIT_SHADER_EXT 1 \n";               break;
+        case EShLangClosestHit:     preamble += "#define GL_CLOSEST_HIT_SHADER_EXT 1 \n";           break;
+        case EShLangMiss:           preamble += "#define GL_MISS_SHADER_EXT 1 \n";                  break;
+        case EShLangCallable:       preamble += "#define GL_CALLABLE_SHADER_EXT 1 \n";              break;
+        case EShLangTask:           preamble += "#define GL_TASK_SHADER_EXT 1 \n";                  break;
+        case EShLangMesh:           preamble += "#define GL_MESH_SHADER_EXT 1 \n";                  break;
+        default:                                                                                    break;
         }
     }
 }
@@ -1466,6 +1471,14 @@ void TParseVersions::coopmatCheck(const TSourceLoc& loc, const char* op, bool bu
     }
 }
 
+void TParseVersions::coopmatConverisonCheckQCOM(const TSourceLoc& loc, const char* op, bool builtIn)
+{
+  if (!builtIn) {
+    const char* const extensions[] = {E_GL_KHR_cooperative_matrix};
+    requireExtensions(loc, sizeof(extensions) / sizeof(extensions[0]), extensions, op);
+  }
+}
+
 void TParseVersions::tensorLayoutViewCheck(const TSourceLoc& loc, const char* op, bool builtIn)
 {
     if (!builtIn) {
@@ -1495,6 +1508,14 @@ void TParseVersions::tensorCheckARM(const TSourceLoc& loc, const char* op, bool 
     if (!builtIn) {
         const char* const extensions[] = {E_GL_ARM_tensors};
         requireExtensions(loc, sizeof(extensions) / sizeof(extensions[0]), extensions, op);
+    }
+}
+
+void TParseVersions::longVectorCheck(const TSourceLoc& loc, const char* op, bool builtIn)
+{
+    if (!builtIn) {
+        const char* const extensions[] = {E_GL_EXT_long_vector};
+        requireExtensions(loc, sizeof(extensions)/sizeof(extensions[0]), extensions, op);
     }
 }
 
