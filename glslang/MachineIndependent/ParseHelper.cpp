@@ -1229,23 +1229,23 @@ TFunction* TParseContext::handleFunctionDeclarator(const TSourceLoc& loc, TFunct
     if (prevDec) {
         if (prevDec->isPrototyped() && prototype)
             profileRequires(loc, EEsProfile, 300, nullptr, "multiple prototypes for same function");
-        if (prevDec->getSpirvInstruction() != function.getSpirvInstruction()) {
+        /*if (prevDec->getSpirvInstruction() != function.getSpirvInstruction()) {
             error(loc, "overloaded functions must have the same qualifiers", function.getName().c_str(),
                   "spirv_instruction");
-        }
+        }*/
         bool parameterTypesDiffer = false;
         for (int i = 0; i < prevDec->getParamCount(); ++i) {
-            if ((*prevDec)[i].type->getQualifier().storage != function[i].type->getQualifier().storage)
+            /*if ((*prevDec)[i].type->getQualifier().storage != function[i].type->getQualifier().storage)
                 error(loc, "overloaded functions must have the same parameter storage qualifiers for argument", function[i].type->getStorageQualifierString(), "%d", i+1);
 
             if ((*prevDec)[i].type->getQualifier().precision != function[i].type->getQualifier().precision)
-                error(loc, "overloaded functions must have the same parameter precision qualifiers for argument", function[i].type->getPrecisionQualifierString(), "%d", i+1);
+                error(loc, "overloaded functions must have the same parameter precision qualifiers for argument", function[i].type->getPrecisionQualifierString(), "%d", i+1);*/
 
             if (*(*prevDec)[i].type != *function[i].type)
                 parameterTypesDiffer = true;
         }
-        if (!parameterTypesDiffer && prevDec->getType() != function.getType())
-            error(loc, "overloaded functions must have the same return type", function.getName().c_str(), "");
+        //if (!parameterTypesDiffer && prevDec->getType() != function.getType())
+            //error(loc, "overloaded functions must have the same return type", function.getName().c_str(), "");
     }
 
     arrayObjectCheck(loc, function.getType(), "array in function return type");
@@ -3978,8 +3978,8 @@ void TParseContext::checkPrecisionQualifier(const TSourceLoc& loc, TPrecisionQua
 //
 void TParseContext::assignError(const TSourceLoc& loc, const char* op, TString left, TString right)
 {
-    error(loc, "", op, "cannot convert from '%s' to '%s'",
-          right.c_str(), left.c_str());
+    /*error(loc, "", op, "cannot convert from '%s' to '%s'",
+          right.c_str(), left.c_str());*/
 }
 
 //
@@ -4021,7 +4021,7 @@ void TParseContext::variableCheck(TIntermTyped*& nodePtr)
         } else if (spvVersion.vulkan != 0 && symbol->getName() == "gl_InstanceID") {
           extraInfoFormat = "(Did you mean gl_InstanceIndex?)";
         }
-        error(symbol->getLoc(), "undeclared identifier", symbol->getName().c_str(), extraInfoFormat);
+        warn(symbol->getLoc(), "undeclared identifier", symbol->getName().c_str(), extraInfoFormat);
 
         // Add to symbol table to prevent future error messages on the same name
         if (symbol->getName().size() > 0) {
@@ -8279,7 +8279,7 @@ const TFunction* TParseContext::findFunctionExact(const TSourceLoc& loc, const T
 {
     TSymbol* symbol = symbolTable.find(call.getMangledName(), &builtIn);
     if (symbol == nullptr) {
-        error(loc, "no matching overloaded function found", call.getName().c_str(), "");
+        warn(loc, "no matching overloaded function found", call.getName().c_str(), "");
 
         return nullptr;
     }
@@ -8343,14 +8343,14 @@ const TFunction* TParseContext::findFunction120(const TSourceLoc& loc, const TFu
         if (possibleMatch) {
             if (candidate) {
                 // our second match, meaning ambiguity
-                error(loc, "ambiguous function signature match: multiple signatures match under implicit type conversion", call.getName().c_str(), "");
+                warn(loc, "ambiguous function signature match: multiple signatures match under implicit type conversion", call.getName().c_str(), "");
             } else
                 candidate = &function;
         }
     }
 
     if (candidate == nullptr)
-        error(loc, "no matching overloaded function found", call.getName().c_str(), "");
+        warn(loc, "no matching overloaded function found", call.getName().c_str(), "");
 
     return candidate;
 }
@@ -8500,9 +8500,9 @@ const TFunction* TParseContext::findFunction400(const TSourceLoc& loc, const TFu
     const TFunction* bestMatch = selectFunction(candidateList, call, convertible, better, tie);
 
     if (bestMatch == nullptr)
-        error(loc, "no matching overloaded function found", call.getName().c_str(), "");
+        warn(loc, "no matching overloaded function found", call.getName().c_str(), "");
     else if (tie)
-        error(loc, "ambiguous best function under implicit type conversion", call.getName().c_str(), "");
+        warn(loc, "ambiguous best function under implicit type conversion", call.getName().c_str(), "");
 
     return bestMatch;
 }
@@ -8611,9 +8611,9 @@ const TFunction* TParseContext::findFunctionExplicitTypes(const TSourceLoc& loc,
     const TFunction* bestMatch = selectFunction(candidateList, call, convertible, better, tie);
 
     if (bestMatch == nullptr)
-        error(loc, "no matching overloaded function found", call.getName().c_str(), "");
+        warn(loc, "no matching overloaded function found", call.getName().c_str(), "");
     else if (tie)
-        error(loc, "ambiguous best function under implicit type conversion", call.getName().c_str(), "");
+        warn(loc, "ambiguous best function under implicit type conversion", call.getName().c_str(), "");
 
     return bestMatch;
 }
@@ -9371,8 +9371,8 @@ TIntermNode* TParseContext::declareVariable(const TSourceLoc& loc, TString& iden
     if (symbol != nullptr && initializer) {
         TVariable* variable = symbol->getAsVariable();
         if (! variable) {
-            error(loc, "initializer requires a variable, not a member", identifier.c_str(), "");
-            return nullptr;
+            /*error(loc, "initializer requires a variable, not a member", identifier.c_str(), "");
+            return nullptr;*/
         }
         initNode = executeInitializer(loc, initializer, variable);
     }
@@ -9483,24 +9483,24 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
                 profileRequires(loc, EEsProfile, 0, E_GL_EXT_null_initializer, feature);
                 profileRequires(loc, ~EEsProfile, 0, E_GL_EXT_null_initializer, feature);
             } else {
-                error(loc, "initializer can only be a null initializer ('{}')", "shared", "");
+                /*error(loc, "initializer can only be a null initializer ('{}')", "shared", "");*/
             }
         } else {
-            error(loc, " cannot initialize this type of qualifier ",
-                  variable->getType().getStorageQualifierString(), "");
-            return nullptr;
+            /*error(loc, " cannot initialize this type of qualifier ",
+                  variable->getType().getStorageQualifierString(), "");*/
+            //return nullptr;
         }
     }
 
     if (nullInit) {
         // only some types can be null initialized
         if (variable->getType().containsUnsizedArray()) {
-            error(loc, "null initializers can't size unsized arrays", "{}", "");
-            return nullptr;
+            //error(loc, "null initializers can't size unsized arrays", "{}", "");
+            //return nullptr;
         }
         if (variable->getType().containsOpaque()) {
-            error(loc, "null initializers can't be used on opaque values", "{}", "");
-            return nullptr;
+            //error(loc, "null initializers can't be used on opaque values", "{}", "");
+            //return nullptr;
         }
         variable->getWritableType().getQualifier().setNullInit();
         return nullptr;
@@ -9547,17 +9547,17 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
 
     // Uniforms require a compile-time constant initializer
     if (qualifier == EvqUniform && ! initializer->getType().getQualifier().isFrontEndConstant()) {
-        error(loc, "uniform initializers must be constant", "=", "'%s'",
-              variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
-        variable->getWritableType().getQualifier().makeTemporary();
-        return nullptr;
+        //error(loc, "uniform initializers must be constant", "=", "'%s'",
+              /*variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
+        variable->getWritableType().getQualifier().makeTemporary();*/
+        //return nullptr;
     }
     // Global consts require a constant initializer (specialization constant is okay)
     if (qualifier == EvqConst && symbolTable.atGlobalLevel() && ! initializer->getType().getQualifier().isConstant()) {
-        error(loc, "global const initializers must be constant", "=", "'%s'",
-              variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
-        variable->getWritableType().getQualifier().makeTemporary();
-        return nullptr;
+        //error(loc, "global const initializers must be constant", "=", "'%s'",
+              //variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
+        //variable->getWritableType().getQualifier().makeTemporary();
+        //return nullptr;
     }
 
     // Const variables require a constant initializer, depending on version
@@ -9592,10 +9592,10 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
         initializer = intermediate.addConversion(EOpAssign, variable->getType(), initializer);
         if (! initializer || ! initializer->getType().getQualifier().isConstant() ||
             variable->getType() != initializer->getType()) {
-            error(loc, "non-matching or non-convertible constant type for const initializer",
-                  variable->getType().getStorageQualifierString(), "");
-            variable->getWritableType().getQualifier().makeTemporary();
-            return nullptr;
+            /*error(loc, "non-matching or non-convertible constant type for const initializer",
+                  variable->getType().getStorageQualifierString(), "");*/
+            //variable->getWritableType().getQualifier().makeTemporary();
+            //return nullptr;
         }
 
         // We either have a folded constant in getAsConstantUnion, or we have to use
