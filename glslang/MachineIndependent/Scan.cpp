@@ -410,7 +410,7 @@ const std::unordered_map<const char*, int, str_hash, str_eq> KeywordMap {
     {"volatile",VOLATILE},
     {"nontemporal",NONTEMPORAL},
     {"patch",PATCH},
-    //{"sample",SAMPLE},
+    {"sample",SAMPLE},
     {"subroutine",SUBROUTINE},
     {"dmat2",DMAT2},
     {"dmat3",DMAT3},
@@ -626,7 +626,7 @@ const std::unordered_map<const char*, int, str_hash, str_eq> KeywordMap {
     {"utexture2DArray",UTEXTURE2DARRAY},
     {"texture3D",TEXTURE3D},
 
-    {"sampler",SAMPLER},
+    //{"sampler",SAMPLER},
     {"samplerShadow",SAMPLERSHADOW},
 
     {"textureCubeArray",TEXTURECUBEARRAY},
