@@ -2900,13 +2900,13 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
     auto checkConstantArgWithLocation = [&](int argIndex, const char* argDescription,
                                                        const char* errMsg, int ioRTLocationSet) {
         //ioRTLocationSet refers to grouping of locations of RT input/outputs as defined in TIntermediate::usedIoRT
-        if (!(*argp)[argIndex]->getAsConstantUnion()) {
+        /*if (!(*argp)[argIndex]->getAsConstantUnion()) {
             error(loc, "argument must be compile-time constant", argDescription, argIndex == 10 ? "a" : "");
         } else if (ioRTLocationSet >= 0) {
             unsigned int location = (*argp)[argIndex]->getAsConstantUnion()->getAsConstantUnion()->getConstArray()[0].getUConst();
             if (!extensionTurnedOn(E_GL_EXT_spirv_intrinsics) && intermediate.checkLocationRT(ioRTLocationSet, location) < 0)
                 error(loc, "with layout(location =", errMsg, "%d)", location);
-        }
+        }*/
     };
 
     switch (callNode.getOp()) {
@@ -2920,7 +2920,7 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
         featureString = fnCandidate.getName();
         featureString += "(...)";
         feature = featureString.c_str();
-        profileRequires(loc, EEsProfile, 310, nullptr, feature);
+        //profileRequires(loc, EEsProfile, 310, nullptr, feature);
         int compArg = -1;  // track which argument, if any, is the constant component argument
         const int numTexGatherExts = 3;
         const char* texGatherExts[numTexGatherExts] = { E_GL_ARB_texture_gather,
@@ -2931,33 +2931,32 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
             // More than two arguments needs gpu_shader5, and rectangular or shadow needs gpu_shader5,
             // otherwise, need GL_ARB_texture_gather.
             if (fnCandidate.getParamCount() > 2 || fnCandidate[0].type->getSampler().dim == EsdRect || fnCandidate[0].type->getSampler().shadow) {
-                profileRequires(loc, ~EEsProfile, 400, Num_AEP_core_gpu_shader5, AEP_core_gpu_shader5, feature);
+                //profileRequires(loc, ~EEsProfile, 400, Num_AEP_core_gpu_shader5, AEP_core_gpu_shader5, feature);
                 if (! fnCandidate[0].type->getSampler().shadow)
                     compArg = 2;
-            } else
-                profileRequires(loc, ~EEsProfile, 400, numTexGatherExts, texGatherExts, feature);
+            }
             break;
         case EOpTextureGatherOffset:
             // GL_ARB_texture_gather is good enough for 2D non-shadow textures with no component argument
-            if (fnCandidate[0].type->getSampler().dim == Esd2D && ! fnCandidate[0].type->getSampler().shadow && fnCandidate.getParamCount() == 3)
+            /*if (fnCandidate[0].type->getSampler().dim == Esd2D && ! fnCandidate[0].type->getSampler().shadow && fnCandidate.getParamCount() == 3)
                 profileRequires(loc, ~EEsProfile, 400, numTexGatherExts, texGatherExts, feature);
             else
                 profileRequires(loc, ~EEsProfile, 400, Num_AEP_core_gpu_shader5, AEP_core_gpu_shader5, feature);
             if (! (*argp)[fnCandidate[0].type->getSampler().shadow ? 3 : 2]->getAsConstantUnion())
                 profileRequires(loc, EEsProfile, 320, Num_AEP_gpu_shader5, AEP_gpu_shader5,
-                                "non-constant offset argument");
+                                "non-constant offset argument");*/
             if (! fnCandidate[0].type->getSampler().shadow)
                 compArg = 3;
             break;
         case EOpTextureGatherOffsets:
-            profileRequires(loc, ~EEsProfile, 400, Num_AEP_core_gpu_shader5, AEP_core_gpu_shader5, feature);
+            //profileRequires(loc, ~EEsProfile, 400, Num_AEP_core_gpu_shader5, AEP_core_gpu_shader5, feature);
             if (! fnCandidate[0].type->getSampler().shadow)
                 compArg = 3;
             // check for constant offsets
-            if (! (*argp)[fnCandidate[0].type->getSampler().shadow ? 3 : 2]->getAsConstantUnion()
+            /*if (! (*argp)[fnCandidate[0].type->getSampler().shadow ? 3 : 2]->getAsConstantUnion()
                 // NV_gpu_shader5 relaxes this limitation and allows for non-constant offsets
                 && !extensionTurnedOn(E_GL_NV_gpu_shader5))
-                error(loc, "must be a compile-time constant:", feature, "offsets argument");
+                //error(loc, "must be a compile-time constant:", feature, "offsets argument");*/
             break;
         default:
             break;
@@ -9564,8 +9563,8 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
     if (qualifier == EvqConst) {
         if (! initializer->getType().getQualifier().isConstant()) {
             const char* initFeature = "non-constant initializer";
-            requireProfile(loc, ~EEsProfile, initFeature);
-            profileRequires(loc, ~EEsProfile, 420, E_GL_ARB_shading_language_420pack, initFeature);
+            //requireProfile(loc, ~EEsProfile, initFeature);
+            //profileRequires(loc, ~EEsProfile, 420, E_GL_ARB_shading_language_420pack, initFeature);
             variable->getWritableType().getQualifier().storage = EvqConstReadOnly;
             qualifier = EvqConstReadOnly;
         }
@@ -9580,8 +9579,6 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
             if (isEsProfile()) {
                 if (relaxedErrors() && ! extensionTurnedOn(E_GL_EXT_shader_non_constant_global_initializers))
                     warn(loc, "not allowed in this version", initFeature, "");
-                else
-                    profileRequires(loc, EEsProfile, 0, E_GL_EXT_shader_non_constant_global_initializers, initFeature);
             }
         }
     }
