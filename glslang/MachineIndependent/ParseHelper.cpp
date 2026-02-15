@@ -1481,7 +1481,7 @@ TIntermTyped* TParseContext::handleFunctionCall(const TSourceLoc& loc, TFunction
                     bool containsBindlessSampler = intermediate.getBindlessMode() && argType.containsSampler();
                     if (argQualifier.isMemory() && !containsBindlessSampler && (argType.containsOpaque() || argType.isReference())) {
                         const char* message = "argument cannot drop memory qualifier when passed to formal parameter";
-                        if (argQualifier.volatil && ! formalQualifier.volatil)
+                        /*if (argQualifier.volatil && ! formalQualifier.volatil)
                             error(arguments->getLoc(), message, "volatile", "");
                         if (argQualifier.coherent && ! (formalQualifier.devicecoherent || formalQualifier.coherent))
                             error(arguments->getLoc(), message, "coherent", "");
@@ -1496,9 +1496,9 @@ TIntermTyped* TParseContext::handleFunctionCall(const TSourceLoc& loc, TFunction
                         if (argQualifier.readonly && ! formalQualifier.readonly)
                             error(arguments->getLoc(), message, "readonly", "");
                         if (argQualifier.writeonly && ! formalQualifier.writeonly)
-                            error(arguments->getLoc(), message, "writeonly", "");
-                        if (argQualifier.nontemporal && ! formalQualifier.nontemporal)
-                            error(arguments->getLoc(), message, "nontemporal", "");
+                            error(arguments->getLoc(), message, "writeonly", "");*/
+                        /*if (argQualifier.nontemporal && ! formalQualifier.nontemporal)
+                            error(arguments->getLoc(), message, "nontemporal", "");*/
                         // Don't check 'restrict', it is different than the rest:
                         // "...but only restrict can be taken away from a calling argument, by a formal parameter that
                         // lacks the restrict qualifier..."
