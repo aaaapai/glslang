@@ -210,9 +210,9 @@ bool TParseContext::parseShaderStrings(TPpContext& ppContext, TInputScanner& inp
 void TParseContext::parserError(const char* s)
 {
     if (! getScanner()->atEndOfInput() || numErrors == 0)
-        error(getCurrentLoc(), "", "", s, "");
+        warn(getCurrentLoc(), "", "", s, "");
     else
-        error(getCurrentLoc(), "compilation terminated", "", "");
+        warn(getCurrentLoc(), "compilation terminated", "", "");
 }
 
 void TParseContext::growGlobalUniformBlock(const TSourceLoc& loc, TType& memberType, const TString& memberName, TTypeList* typeList)
@@ -384,34 +384,34 @@ void TParseContext::handlePragma(const TSourceLoc& loc, const TVector<TString>& 
         }
 
         if (tokens[3].compare(")") != 0) {
-            error(loc, "\")\" expected to end 'debug' pragma", "#pragma", "");
+            warn(loc, "\")\" expected to end 'debug' pragma", "#pragma", "");
             return;
         }
     } else if (spvVersion.spv > 0 && tokens[0].compare("use_storage_buffer") == 0) {
         if (tokens.size() != 1)
-            error(loc, "extra tokens", "#pragma", "");
+            warn(loc, "extra tokens", "#pragma", "");
         intermediate.setUseStorageBuffer();
     } else if (spvVersion.spv > 0 && tokens[0].compare("use_vulkan_memory_model") == 0) {
         if (tokens.size() != 1)
-            error(loc, "extra tokens", "#pragma", "");
+            warn(loc, "extra tokens", "#pragma", "");
         intermediate.setUseVulkanMemoryModel();
     } else if (spvVersion.spv > 0 && tokens[0].compare("use_variable_pointers") == 0) {
         if (tokens.size() != 1)
-            error(loc, "extra tokens", "#pragma", "");
+            warn(loc, "extra tokens", "#pragma", "");
         if (spvVersion.spv < glslang::EShTargetSpv_1_3)
-            error(loc, "requires SPIR-V 1.3", "#pragma use_variable_pointers", "");
+            warn(loc, "requires SPIR-V 1.3", "#pragma use_variable_pointers", "");
         intermediate.setUseVariablePointers();
     } else if (spvVersion.spv > 0 && tokens[0].compare("use_replicated_composites") == 0) {
         if (tokens.size() != 1)
-            error(loc, "extra tokens", "#pragma", "");
+            warn(loc, "extra tokens", "#pragma", "");
         intermediate.setReplicatedComposites();
     } else if (spvVersion.spv > 0 && tokens[0].compare("promote_uint32_indices") == 0) {
         if (tokens.size() != 1)
-            error(loc, "extra tokens", "#pragma", "");
+            warn(loc, "extra tokens", "#pragma", "");
         intermediate.setPromoteUint32Indices();
     } else if (spvVersion.spv > 0 && tokens[0].compare("shader_64bit_indexing") == 0) {
         if (tokens.size() != 1)
-            error(loc, "extra tokens", "#pragma", "");
+            warn(loc, "extra tokens", "#pragma", "");
         intermediate.setShader64BitIndexing();
     } else if (tokens[0].compare("once") == 0) {
         warn(loc, "not implemented", "#pragma once", "");
