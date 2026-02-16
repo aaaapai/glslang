@@ -626,7 +626,7 @@ const std::unordered_map<const char*, int, str_hash, str_eq> KeywordMap {
     {"utexture2DArray",UTEXTURE2DARRAY},
     {"texture3D",TEXTURE3D},
 
-    //{"sampler",SAMPLER},
+    {"sampler",SAMPLER},
     {"samplerShadow",SAMPLERSHADOW},
 
     {"textureCubeArray",TEXTURECUBEARRAY},
@@ -653,7 +653,7 @@ const std::unordered_map<const char*, int, str_hash, str_eq> KeywordMap {
     {"isampler2DMSArray",ISAMPLER2DMSARRAY},
     {"usampler2DMSArray",USAMPLER2DMSARRAY},
     {"sampler1D",SAMPLER1D},
-    //{"sampler1DShadow",SAMPLER1DSHADOW},
+    {"sampler1DShadow",SAMPLER1DSHADOW},
     {"sampler2DRect",SAMPLER2DRECT},
     {"sampler2DRectShadow",SAMPLER2DRECTSHADOW},
     {"sampler1DArray",SAMPLER1DARRAY},
