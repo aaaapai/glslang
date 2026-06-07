@@ -10,6 +10,7 @@ permissions: read-all
 
 jobs:
   linux:
+    needs: linux-shared # fastest job to do sanity check
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -19,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639 # v1.2.20
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
         with:
           key: ubuntu-22-${{ matrix.cmake_build_type }}-${{ matrix.compiler.cc }}-${{matrix.compiler.cxx}}
       - run: ./update_glslang_sources.py
@@ -54,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639 # v1.2.20
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
         with:
           key: ubuntu-22-${{ matrix.cmake_build_type }}-${{ matrix.compiler.cc }}-${{matrix.compiler.cxx}}
       - run: ./update_glslang_sources.py
@@ -78,6 +79,7 @@ jobs:
         run: ctest --output-on-failure --test-dir build
 
   linux-asan:
+    needs: linux-shared # fastest job to do sanity check
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -88,7 +90,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639 # v1.2.20
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
         with:
           key: ubuntu-22-${{ matrix.cmake_build_type }}-${{ matrix.compiler.cc }}-${{matrix.compiler.cxx}}-${{matrix.flags}}
       # This is to combat a bug when using 6.6 linux kernels with thread/address sanitizer
@@ -117,6 +119,7 @@ jobs:
 
   # Ensure we can compile/run on an older distro, with older tools (cmake, python, etc)
   linux_min:
+    needs: linux-shared # fastest job to do sanity check
     name: Linux Backcompat
     runs-on: ubuntu-22.04
     steps:
@@ -124,11 +127,11 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: '3.7'
-      - uses: lukka/get-cmake@f176ccd3f28bda569c43aae4894f06b2435a3375 # v4.2.3
+      - uses: lukka/get-cmake@591817e96fcad43505fb4eae36172462abb3a42e # v4.3.3
         with:
           cmakeVersion: 3.22.1
       - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639 # v1.2.20
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
         with:
           key: linux_backcompat
       - run: ./update_glslang_sources.py
@@ -149,6 +152,8 @@ jobs:
         run: ctest --output-on-failure --test-dir build
 
   macos:
+    # iOS is 10x expensive to run on GitHub machines, so only run if we know something else passed as well
+    needs: windows-shared
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
@@ -179,6 +184,8 @@ jobs:
       - run: ctest --output-on-failure --test-dir build
 
   macos-shared:
+    # iOS is 10x expensive to run on GitHub machines, so only run if we know something else passed as well
+    needs: windows-shared
     runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
@@ -210,6 +217,7 @@ jobs:
       - run: ctest --output-on-failure --test-dir build
 
   windows:
+    needs: linux-shared # fastest job to do sanity check
     runs-on: ${{matrix.os.genus}}
     permissions:
       contents: write
@@ -233,6 +241,7 @@ jobs:
         run: ctest -C ${{matrix.cmake_build_type}} --output-on-failure --test-dir build
 
   windows-shared:
+    needs: linux-shared # fastest job to do sanity check
     runs-on: ${{matrix.os.genus}}
     permissions:
       contents: write
@@ -256,11 +265,13 @@ jobs:
         run: ctest -C ${{matrix.cmake_build_type}} --output-on-failure --test-dir build
 
   iOS:
+    # iOS is 10x expensive to run on GitHub machines, so only run if we know something else passed as well
+    needs: windows-shared
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639 # v1.2.20
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
         with:
           key: IOS
       - run: ./update_glslang_sources.py
@@ -279,6 +290,7 @@ jobs:
       - run: cmake --install build --prefix /tmp
 
   android:
+    needs: linux-shared # fastest job to do sanity check
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -288,7 +300,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639 # v1.2.20
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
         with:
           key: android-${{ matrix.LEGACY }}
       - run: ./update_glslang_sources.py
@@ -306,14 +318,15 @@ jobs:
       - run: cmake --install build/ --prefix /tmp
 
   emscripten:
+    needs: linux-shared # fastest job to do sanity check
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@5ebbd400eff9e74630f759d94ddd7b6c26299639 # v1.2.20
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
         with:
           key: ubuntu-emscripten
-      - uses: mymindstorm/setup-emsdk@6ab9eb1bda2574c4ddb79809fc9247783eaf9021 # v14
+      - uses: emscripten-core/setup-emsdk@4528d102f7230f0e7b276855c01ea1159be0e984 # v16
       - name: Update Glslang Sources
         run: ./update_glslang_sources.py
       - name: Configure
