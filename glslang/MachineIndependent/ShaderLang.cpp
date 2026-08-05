@@ -306,10 +306,6 @@ bool InitializeStageSymbolTable(TBuiltInParseables& builtInParseables, int versi
                           infoSink, *symbolTables[language]))
         return false;
     builtInParseables.identifyBuiltIns(version, profile, spvVersion, language, *symbolTables[language]);
-    if (profile == EEsProfile && version >= 300)
-        (*symbolTables[language]).setNoBuiltInRedeclarations();
-    if (version == 110)
-        (*symbolTables[language]).setSeparateNameSpaces();
 
     return true;
 }
@@ -673,7 +669,7 @@ bool DeduceVersionProfile(TInfoSink& infoSink, EShLanguage stage, bool versionNo
             }
             break;
         case ECompatibilityProfile:
-            infoSink.info.message(EPrefixError, "#version: compilation for SPIR-V does not support the compatibility profile");
+            //infoSink.info.message(EPrefixError, "#version: compilation for SPIR-V does not support the compatibility profile");
             break;
         default:
             if (spvVersion.vulkan > 0 && version < 140) {

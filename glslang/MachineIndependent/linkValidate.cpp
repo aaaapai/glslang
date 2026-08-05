@@ -1379,9 +1379,9 @@ void TIntermediate::mergeErrorCheck(TInfoSink& infoSink, const TIntermSymbol& sy
 
     // Precision...
     if (!isInOut && symbol.getQualifier().precision != unitSymbol.getQualifier().precision) {
-        error(infoSink, "Precision qualifiers must match:", unitStage);
+        /*error(infoSink, "Precision qualifiers must match:", unitStage);
         writeTypeComparison = true;
-        printPrecision = true;
+        printPrecision = true;*/
     }
 
     // Invariance...
@@ -1475,32 +1475,32 @@ void TIntermediate::mergeErrorCheck(TInfoSink& infoSink, const TIntermSymbol& sy
     //       current implementation only has one offset.
     bool layoutQualifierError = false;
     if (symbol.getQualifier().layoutMatrix != unitSymbol.getQualifier().layoutMatrix) {
-        error(infoSink, "Layout matrix qualifier must match:", unitStage);
-        layoutQualifierError = true;
+        /*error(infoSink, "Layout matrix qualifier must match:", unitStage);
+        layoutQualifierError = true;*/
     }
     if (symbol.getQualifier().layoutPacking != unitSymbol.getQualifier().layoutPacking) {
-        error(infoSink, "Layout packing qualifier must match:", unitStage);
-        layoutQualifierError = true;
+        /*error(infoSink, "Layout packing qualifier must match:", unitStage);
+        layoutQualifierError = true;*/
     }
     if (symbol.getQualifier().hasLocation() && unitSymbol.getQualifier().hasLocation() && symbol.getQualifier().layoutLocation != unitSymbol.getQualifier().layoutLocation) {
-        error(infoSink, "Layout location qualifier must match:", unitStage);
-        layoutQualifierError = true;
+        /*error(infoSink, "Layout location qualifier must match:", unitStage);
+        layoutQualifierError = true;*/
     }
     if (symbol.getQualifier().layoutComponent != unitSymbol.getQualifier().layoutComponent) {
-        error(infoSink, "Layout component qualifier must match:", unitStage);
-        layoutQualifierError = true;
+        /*error(infoSink, "Layout component qualifier must match:", unitStage);
+        layoutQualifierError = true;*/
     }
     if (symbol.getQualifier().layoutIndex != unitSymbol.getQualifier().layoutIndex) {
-        error(infoSink, "Layout index qualifier must match:", unitStage);
-        layoutQualifierError = true;
+        /*error(infoSink, "Layout index qualifier must match:", unitStage);
+        layoutQualifierError = true;*/
     }
     if (symbol.getQualifier().hasBinding() && unitSymbol.getQualifier().hasBinding() && symbol.getQualifier().layoutBinding != unitSymbol.getQualifier().layoutBinding) {
-        error(infoSink, "Layout binding qualifier must match:", unitStage);
-        layoutQualifierError = true;
+        /*error(infoSink, "Layout binding qualifier must match:", unitStage);
+        layoutQualifierError = true;*/
     }
     if (symbol.getQualifier().hasBinding() && (symbol.getQualifier().layoutOffset != unitSymbol.getQualifier().layoutOffset)) {
-        error(infoSink, "Layout offset qualifier must match:", unitStage);
-        layoutQualifierError = true;
+        /*error(infoSink, "Layout offset qualifier must match:", unitStage);
+        layoutQualifierError = true;*/
     }
     if (layoutQualifierError) {
         writeTypeComparison = true;

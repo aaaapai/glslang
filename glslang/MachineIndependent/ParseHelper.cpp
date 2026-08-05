@@ -211,9 +211,9 @@ bool TParseContext::parseShaderStrings(TPpContext& ppContext, TInputScanner& inp
 void TParseContext::parserError(const char* s)
 {
     if (! getScanner()->atEndOfInput() || numErrors == 0)
-        error(getCurrentLoc(), "", "", s, "");
+        warn(getCurrentLoc(), "", "", s, "");
     else
-        error(getCurrentLoc(), "compilation terminated", "", "");
+        warn(getCurrentLoc(), "compilation terminated", "", "");
 }
 
 void TParseContext::growGlobalUniformBlock(const TSourceLoc& loc, TType& memberType, const TString& memberName, TTypeList* typeList)
@@ -385,34 +385,34 @@ void TParseContext::handlePragma(const TSourceLoc& loc, const TVector<TString>& 
         }
 
         if (tokens[3].compare(")") != 0) {
-            error(loc, "\")\" expected to end 'debug' pragma", "#pragma", "");
+            warn(loc, "\")\" expected to end 'debug' pragma", "#pragma", "");
             return;
         }
     } else if (spvVersion.spv > 0 && tokens[0].compare("use_storage_buffer") == 0) {
         if (tokens.size() != 1)
-            error(loc, "extra tokens", "#pragma", "");
+            warn(loc, "extra tokens", "#pragma", "");
         intermediate.setUseStorageBuffer();
     } else if (spvVersion.spv > 0 && tokens[0].compare("use_vulkan_memory_model") == 0) {
         if (tokens.size() != 1)
-            error(loc, "extra tokens", "#pragma", "");
+            warn(loc, "extra tokens", "#pragma", "");
         intermediate.setUseVulkanMemoryModel();
     } else if (spvVersion.spv > 0 && tokens[0].compare("use_variable_pointers") == 0) {
         if (tokens.size() != 1)
-            error(loc, "extra tokens", "#pragma", "");
+            warn(loc, "extra tokens", "#pragma", "");
         if (spvVersion.spv < glslang::EShTargetSpv_1_3)
-            error(loc, "requires SPIR-V 1.3", "#pragma use_variable_pointers", "");
+            warn(loc, "requires SPIR-V 1.3", "#pragma use_variable_pointers", "");
         intermediate.setUseVariablePointers();
     } else if (spvVersion.spv > 0 && tokens[0].compare("use_replicated_composites") == 0) {
         if (tokens.size() != 1)
-            error(loc, "extra tokens", "#pragma", "");
+            warn(loc, "extra tokens", "#pragma", "");
         intermediate.setReplicatedComposites();
     } else if (spvVersion.spv > 0 && tokens[0].compare("promote_uint32_indices") == 0) {
         if (tokens.size() != 1)
-            error(loc, "extra tokens", "#pragma", "");
+            warn(loc, "extra tokens", "#pragma", "");
         intermediate.setPromoteUint32Indices();
     } else if (spvVersion.spv > 0 && tokens[0].compare("shader_64bit_indexing") == 0) {
         if (tokens.size() != 1)
-            error(loc, "extra tokens", "#pragma", "");
+            warn(loc, "extra tokens", "#pragma", "");
         intermediate.setShader64BitIndexing();
     } else if (tokens[0].compare("once") == 0) {
         warn(loc, "not implemented", "#pragma once", "");
@@ -1242,28 +1242,28 @@ TFunction* TParseContext::handleFunctionDeclarator(const TSourceLoc& loc, TFunct
     if (prevDec) {
         if (prevDec->isPrototyped() && prototype)
             profileRequires(loc, EEsProfile, 300, nullptr, "multiple prototypes for same function");
-        if (prevDec->getSpirvInstruction() != function.getSpirvInstruction()) {
+        /*if (prevDec->getSpirvInstruction() != function.getSpirvInstruction()) {
             error(loc, "overloaded functions must have the same qualifiers", function.getName().c_str(),
                   "spirv_instruction");
-        }
+        }*/
         bool parameterTypesDiffer = false;
         for (int i = 0; i < prevDec->getParamCount(); ++i) {
-            if ((*prevDec)[i].type->getQualifier().storage != function[i].type->getQualifier().storage)
+            /*if ((*prevDec)[i].type->getQualifier().storage != function[i].type->getQualifier().storage)
                 error(loc, "overloaded functions must have the same parameter storage qualifiers for argument", function[i].type->getStorageQualifierString(), "%d", i+1);
 
             if ((*prevDec)[i].type->getQualifier().precision != function[i].type->getQualifier().precision)
-                error(loc, "overloaded functions must have the same parameter precision qualifiers for argument", function[i].type->getPrecisionQualifierString(), "%d", i+1);
+                error(loc, "overloaded functions must have the same parameter precision qualifiers for argument", function[i].type->getPrecisionQualifierString(), "%d", i+1);*/
 
             if (*(*prevDec)[i].type != *function[i].type)
                 parameterTypesDiffer = true;
         }
-        if (!parameterTypesDiffer && prevDec->getType() != function.getType())
-            error(loc, "overloaded functions must have the same return type", function.getName().c_str(), "");
+        /*if (!parameterTypesDiffer && prevDec->getType() != function.getType())
+            error(loc, "overloaded functions must have the same return type", function.getName().c_str(), "");*/
 
         function.addFunctionControl(prevDec->getFunctionControl());
         unsigned functionControl = function.getFunctionControl();
-        if (function.hasIncompatibleFunctionControl())
-            error(loc, "function attributes are incompatible", function.getName().c_str(), "");
+        /*if (function.hasIncompatibleFunctionControl())
+            error(loc, "function attributes are incompatible", function.getName().c_str(), "");*/
         if (!builtIn)
             symbol->getAsFunction()->setFunctionControl(functionControl);
     }
@@ -1284,8 +1284,8 @@ TFunction* TParseContext::handleFunctionDeclarator(const TSourceLoc& loc, TFunct
 
     // This insert won't actually insert it if it's a duplicate signature, but it will still check for
     // other forms of name collisions.
-    if (! symbolTable.insert(function))
-        error(loc, "function name is redeclaration of existing name", function.getName().c_str(), "");
+    /*if (! symbolTable.insert(function))
+        error(loc, "function name is redeclaration of existing name", function.getName().c_str(), "");*/
 
     //
     // If this is a redeclaration, it could also be a definition,
@@ -1501,7 +1501,7 @@ TIntermTyped* TParseContext::handleFunctionCall(const TSourceLoc& loc, TFunction
                     bool containsBindlessSampler = intermediate.getBindlessMode() && argType.containsSampler();
                     if (argQualifier.isMemory() && !containsBindlessSampler && (argType.containsOpaque() || argType.isReference())) {
                         const char* message = "argument cannot drop memory qualifier when passed to formal parameter";
-                        if (argQualifier.volatil && ! formalQualifier.volatil)
+                        /*if (argQualifier.volatil && ! formalQualifier.volatil)
                             error(arguments->getLoc(), message, "volatile", "");
                         if (argQualifier.coherent && ! (formalQualifier.devicecoherent || formalQualifier.coherent))
                             error(arguments->getLoc(), message, "coherent", "");
@@ -1516,9 +1516,9 @@ TIntermTyped* TParseContext::handleFunctionCall(const TSourceLoc& loc, TFunction
                         if (argQualifier.readonly && ! formalQualifier.readonly)
                             error(arguments->getLoc(), message, "readonly", "");
                         if (argQualifier.writeonly && ! formalQualifier.writeonly)
-                            error(arguments->getLoc(), message, "writeonly", "");
-                        if (argQualifier.nontemporal && ! formalQualifier.nontemporal)
-                            error(arguments->getLoc(), message, "nontemporal", "");
+                            error(arguments->getLoc(), message, "writeonly", "");*/
+                        /*if (argQualifier.nontemporal && ! formalQualifier.nontemporal)
+                            error(arguments->getLoc(), message, "nontemporal", "");*/
                         // Don't check 'restrict', it is different than the rest:
                         // "...but only restrict can be taken away from a calling argument, by a formal parameter that
                         // lacks the restrict qualifier..."
@@ -3053,13 +3053,13 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
     auto checkConstantArgWithLocation = [&](int argIndex, const char* argDescription,
                                                        const char* errMsg, int ioRTLocationSet) {
         //ioRTLocationSet refers to grouping of locations of RT input/outputs as defined in TIntermediate::usedIoRT
-        if (!(*argp)[argIndex]->getAsConstantUnion()) {
+        /*if (!(*argp)[argIndex]->getAsConstantUnion()) {
             error(loc, "argument must be compile-time constant", argDescription, argIndex == 10 ? "a" : "");
         } else if (ioRTLocationSet >= 0) {
             unsigned int location = (*argp)[argIndex]->getAsConstantUnion()->getAsConstantUnion()->getConstArray()[0].getUConst();
             if (!extensionTurnedOn(E_GL_EXT_spirv_intrinsics) && intermediate.checkLocationRT(ioRTLocationSet, location) < 0)
                 error(loc, "with layout(location =", errMsg, "%d)", location);
-        }
+        }*/
     };
 
     switch (callNode.getOp()) {
@@ -3085,7 +3085,7 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
         featureString = fnCandidate.getName();
         featureString += "(...)";
         feature = featureString.c_str();
-        profileRequires(loc, EEsProfile, 310, nullptr, feature);
+        //profileRequires(loc, EEsProfile, 310, nullptr, feature);
         int compArg = -1;  // track which argument, if any, is the constant component argument
         const int numTexGatherExts = 3;
         const char* texGatherExts[numTexGatherExts] = { E_GL_ARB_texture_gather,
@@ -3096,33 +3096,32 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
             // More than two arguments needs gpu_shader5, and rectangular or shadow needs gpu_shader5,
             // otherwise, need GL_ARB_texture_gather.
             if (fnCandidate.getParamCount() > 2 || fnCandidate[0].type->getSampler().dim == EsdRect || fnCandidate[0].type->getSampler().shadow) {
-                profileRequires(loc, ~EEsProfile, 400, Num_AEP_core_gpu_shader5, AEP_core_gpu_shader5, feature);
+                //profileRequires(loc, ~EEsProfile, 400, Num_AEP_core_gpu_shader5, AEP_core_gpu_shader5, feature);
                 if (! fnCandidate[0].type->getSampler().shadow)
                     compArg = 2;
-            } else
-                profileRequires(loc, ~EEsProfile, 400, numTexGatherExts, texGatherExts, feature);
+            }
             break;
         case EOpTextureGatherOffset:
             // GL_ARB_texture_gather is good enough for 2D non-shadow textures with no component argument
-            if (fnCandidate[0].type->getSampler().dim == Esd2D && ! fnCandidate[0].type->getSampler().shadow && fnCandidate.getParamCount() == 3)
+            /*if (fnCandidate[0].type->getSampler().dim == Esd2D && ! fnCandidate[0].type->getSampler().shadow && fnCandidate.getParamCount() == 3)
                 profileRequires(loc, ~EEsProfile, 400, numTexGatherExts, texGatherExts, feature);
             else
                 profileRequires(loc, ~EEsProfile, 400, Num_AEP_core_gpu_shader5, AEP_core_gpu_shader5, feature);
             if (! (*argp)[fnCandidate[0].type->getSampler().shadow ? 3 : 2]->getAsConstantUnion())
                 profileRequires(loc, EEsProfile, 320, Num_AEP_gpu_shader5, AEP_gpu_shader5,
-                                "non-constant offset argument");
+                                "non-constant offset argument");*/
             if (! fnCandidate[0].type->getSampler().shadow)
                 compArg = 3;
             break;
         case EOpTextureGatherOffsets:
-            profileRequires(loc, ~EEsProfile, 400, Num_AEP_core_gpu_shader5, AEP_core_gpu_shader5, feature);
+            //profileRequires(loc, ~EEsProfile, 400, Num_AEP_core_gpu_shader5, AEP_core_gpu_shader5, feature);
             if (! fnCandidate[0].type->getSampler().shadow)
                 compArg = 3;
             // check for constant offsets
-            if (! (*argp)[fnCandidate[0].type->getSampler().shadow ? 3 : 2]->getAsConstantUnion()
+            /*if (! (*argp)[fnCandidate[0].type->getSampler().shadow ? 3 : 2]->getAsConstantUnion()
                 // NV_gpu_shader5 relaxes this limitation and allows for non-constant offsets
                 && !extensionTurnedOn(E_GL_NV_gpu_shader5))
-                error(loc, "must be a compile-time constant:", feature, "offsets argument");
+                //error(loc, "must be a compile-time constant:", feature, "offsets argument");*/
             break;
         default:
             break;
@@ -4210,8 +4209,8 @@ void TParseContext::checkPrecisionQualifier(const TSourceLoc& loc, TPrecisionQua
 //
 void TParseContext::assignError(const TSourceLoc& loc, const char* op, TString left, TString right)
 {
-    error(loc, "", op, "cannot convert from '%s' to '%s'",
-          right.c_str(), left.c_str());
+    /*error(loc, "", op, "cannot convert from '%s' to '%s'",
+          right.c_str(), left.c_str());*/
 }
 
 //
@@ -4253,7 +4252,7 @@ void TParseContext::variableCheck(TIntermTyped*& nodePtr)
         } else if (spvVersion.vulkan != 0 && symbol->getName() == "gl_InstanceID") {
           extraInfoFormat = "(Did you mean gl_InstanceIndex?)";
         }
-        error(symbol->getLoc(), "undeclared identifier", symbol->getName().c_str(), extraInfoFormat);
+        warn(symbol->getLoc(), "undeclared identifier", symbol->getName().c_str(), extraInfoFormat);
 
         // Add to symbol table to prevent future error messages on the same name
         if (symbol->getName().size() > 0) {
@@ -8659,7 +8658,7 @@ const TFunction* TParseContext::findFunctionExact(const TSourceLoc& loc, const T
 {
     TSymbol* symbol = symbolTable.find(call.getMangledName(), &builtIn);
     if (symbol == nullptr) {
-        error(loc, "no matching overloaded function found", call.getName().c_str(), "");
+        warn(loc, "no matching overloaded function found", call.getName().c_str(), "");
 
         return nullptr;
     }
@@ -8723,14 +8722,14 @@ const TFunction* TParseContext::findFunction120(const TSourceLoc& loc, const TFu
         if (possibleMatch) {
             if (candidate) {
                 // our second match, meaning ambiguity
-                error(loc, "ambiguous function signature match: multiple signatures match under implicit type conversion", call.getName().c_str(), "");
+                warn(loc, "ambiguous function signature match: multiple signatures match under implicit type conversion", call.getName().c_str(), "");
             } else
                 candidate = &function;
         }
     }
 
     if (candidate == nullptr)
-        error(loc, "no matching overloaded function found", call.getName().c_str(), "");
+        warn(loc, "no matching overloaded function found", call.getName().c_str(), "");
 
     return candidate;
 }
@@ -8880,9 +8879,9 @@ const TFunction* TParseContext::findFunction400(const TSourceLoc& loc, const TFu
     const TFunction* bestMatch = selectFunction(candidateList, call, convertible, better, tie);
 
     if (bestMatch == nullptr)
-        error(loc, "no matching overloaded function found", call.getName().c_str(), "");
+        warn(loc, "no matching overloaded function found", call.getName().c_str(), "");
     else if (tie)
-        error(loc, "ambiguous best function under implicit type conversion", call.getName().c_str(), "");
+        warn(loc, "ambiguous best function under implicit type conversion", call.getName().c_str(), "");
 
     return bestMatch;
 }
@@ -8991,9 +8990,9 @@ const TFunction* TParseContext::findFunctionExplicitTypes(const TSourceLoc& loc,
     const TFunction* bestMatch = selectFunction(candidateList, call, convertible, better, tie);
 
     if (bestMatch == nullptr)
-        error(loc, "no matching overloaded function found", call.getName().c_str(), "");
+        warn(loc, "no matching overloaded function found", call.getName().c_str(), "");
     else if (tie)
-        error(loc, "ambiguous best function under implicit type conversion", call.getName().c_str(), "");
+        warn(loc, "ambiguous best function under implicit type conversion", call.getName().c_str(), "");
 
     return bestMatch;
 }
@@ -9776,8 +9775,8 @@ TIntermNode* TParseContext::declareVariable(const TSourceLoc& loc, TString& iden
     if (symbol != nullptr && initializer) {
         TVariable* variable = symbol->getAsVariable();
         if (! variable) {
-            error(loc, "initializer requires a variable, not a member", identifier.c_str(), "");
-            return nullptr;
+            /*error(loc, "initializer requires a variable, not a member", identifier.c_str(), "");
+            return nullptr;*/
         }
         initNode = executeInitializer(loc, initializer, variable);
 
@@ -9898,24 +9897,24 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
                 profileRequires(loc, EEsProfile, 0, E_GL_EXT_null_initializer, feature);
                 profileRequires(loc, ~EEsProfile, 0, E_GL_EXT_null_initializer, feature);
             } else {
-                error(loc, "initializer can only be a null initializer ('{}')", "shared", "");
+                /*error(loc, "initializer can only be a null initializer ('{}')", "shared", "");*/
             }
         } else {
-            error(loc, " cannot initialize this type of qualifier ",
-                  variable->getType().getStorageQualifierString(), "");
-            return nullptr;
+            /*error(loc, " cannot initialize this type of qualifier ",
+                  variable->getType().getStorageQualifierString(), "");*/
+            //return nullptr;
         }
     }
 
     if (nullInit) {
         // only some types can be null initialized
         if (variable->getType().containsUnsizedArray()) {
-            error(loc, "null initializers can't size unsized arrays", "{}", "");
-            return nullptr;
+            //error(loc, "null initializers can't size unsized arrays", "{}", "");
+            //return nullptr;
         }
         if (variable->getType().containsOpaque()) {
-            error(loc, "null initializers can't be used on opaque values", "{}", "");
-            return nullptr;
+            //error(loc, "null initializers can't be used on opaque values", "{}", "");
+            //return nullptr;
         }
         variable->getWritableType().getQualifier().setNullInit();
         return nullptr;
@@ -9962,25 +9961,25 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
 
     // Uniforms require a compile-time constant initializer
     if (qualifier == EvqUniform && ! initializer->getType().getQualifier().isFrontEndConstant()) {
-        error(loc, "uniform initializers must be constant", "=", "'%s'",
-              variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
-        variable->getWritableType().getQualifier().makeTemporary();
-        return nullptr;
+        //error(loc, "uniform initializers must be constant", "=", "'%s'",
+              /*variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
+        variable->getWritableType().getQualifier().makeTemporary();*/
+        //return nullptr;
     }
     // Global consts require a constant initializer (specialization constant is okay)
     if (qualifier == EvqConst && symbolTable.atGlobalLevel() && ! initializer->getType().getQualifier().isConstant()) {
-        error(loc, "global const initializers must be constant", "=", "'%s'",
-              variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
-        variable->getWritableType().getQualifier().makeTemporary();
-        return nullptr;
+        //error(loc, "global const initializers must be constant", "=", "'%s'",
+              //variable->getType().getCompleteString(intermediate.getEnhancedMsgs()).c_str());
+        //variable->getWritableType().getQualifier().makeTemporary();
+        //return nullptr;
     }
 
     // Const variables require a constant initializer, depending on version
     if (qualifier == EvqConst) {
         if (! initializer->getType().getQualifier().isConstant()) {
             const char* initFeature = "non-constant initializer";
-            requireProfile(loc, ~EEsProfile, initFeature);
-            profileRequires(loc, ~EEsProfile, 420, E_GL_ARB_shading_language_420pack, initFeature);
+            //requireProfile(loc, ~EEsProfile, initFeature);
+            //profileRequires(loc, ~EEsProfile, 420, E_GL_ARB_shading_language_420pack, initFeature);
             variable->getWritableType().getQualifier().storage = EvqConstReadOnly;
             qualifier = EvqConstReadOnly;
         }
@@ -9995,8 +9994,6 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
             if (isEsProfile()) {
                 if (relaxedErrors() && ! extensionTurnedOn(E_GL_EXT_shader_non_constant_global_initializers))
                     warn(loc, "not allowed in this version", initFeature, "");
-                else
-                    profileRequires(loc, EEsProfile, 0, E_GL_EXT_shader_non_constant_global_initializers, initFeature);
             }
         }
     }
@@ -10007,10 +10004,10 @@ TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyp
         initializer = intermediate.addConversion(EOpAssign, variable->getType(), initializer);
         if (! initializer || ! initializer->getType().getQualifier().isConstant() ||
             variable->getType() != initializer->getType()) {
-            error(loc, "non-matching or non-convertible constant type for const initializer",
-                  variable->getType().getStorageQualifierString(), "");
-            variable->getWritableType().getQualifier().makeTemporary();
-            return nullptr;
+            /*error(loc, "non-matching or non-convertible constant type for const initializer",
+                  variable->getType().getStorageQualifierString(), "");*/
+            //variable->getWritableType().getQualifier().makeTemporary();
+            //return nullptr;
         }
 
         // We either have a folded constant in getAsConstantUnion, or we have to use
