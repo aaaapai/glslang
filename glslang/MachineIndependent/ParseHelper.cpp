@@ -1306,8 +1306,8 @@ TIntermAggregate* TParseContext::handleFunctionDefinition(const TSourceLoc& loc,
     TSymbol* symbol = symbolTable.find(function.getMangledName());
     TFunction* prevDec = symbol ? symbol->getAsFunction() : nullptr;
 
-    if (! prevDec)
-        error(loc, "can't find function", function.getName().c_str(), "");
+    /*if (! prevDec)
+        error(loc, "can't find function", function.getName().c_str(), "");*/
     // Note:  'prevDec' could be 'function' if this is the first time we've seen function
     // as it would have just been put in the symbol table.  Otherwise, we're looking up
     // an earlier occurrence.
