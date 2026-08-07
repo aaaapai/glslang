@@ -41,12 +41,25 @@
 #include <cfloat>
 #include <cstdlib>
 #include <climits>
+#include <cstring>
 
 namespace {
 
 using namespace glslang;
 
 constexpr double pi = 3.1415926535897932384626433832795;
+
+// Reinterpret the bits of 'from' as a 'To', for the *BitsTo* built-ins.
+// This matches how the SPIR-V back end emits these constants, so folding
+// them here cannot change the result.
+template<typename To, typename From>
+To bitCast(From from)
+{
+    static_assert(sizeof(To) == sizeof(From), "bitCast requires equally sized types");
+    To to;
+    memcpy(&to, &from, sizeof(to));
+    return to;
+}
 
 } // end anonymous namespace
 
@@ -749,6 +762,24 @@ TIntermTyped* TIntermConstantUnion::fold(TOperator op, const TType& returnType) 
         case EOpAtan:
             newConstArray[i].setDConst(atan(unionArray[i].getDConst()));
             break;
+        case EOpSinh:
+            newConstArray[i].setDConst(sinh(unionArray[i].getDConst()));
+            break;
+        case EOpCosh:
+            newConstArray[i].setDConst(cosh(unionArray[i].getDConst()));
+            break;
+        case EOpTanh:
+            newConstArray[i].setDConst(tanh(unionArray[i].getDConst()));
+            break;
+        case EOpAsinh:
+            newConstArray[i].setDConst(asinh(unionArray[i].getDConst()));
+            break;
+        case EOpAcosh:
+            newConstArray[i].setDConst(acosh(unionArray[i].getDConst()));
+            break;
+        case EOpAtanh:
+            newConstArray[i].setDConst(atanh(unionArray[i].getDConst()));
+            break;
 
         case EOpDPdx:
         case EOpDPdy:
@@ -843,23 +874,35 @@ TIntermTyped* TIntermConstantUnion::fold(TOperator op, const TType& returnType) 
         case EOpConstructReference:
             newConstArray[i].setU64Const(unionArray[i].getU64Const()); break;
 
+        // The constant is held as a double, so narrow it back to the declared
+        // width before reinterpreting its bits.
+        case EOpFloatBitsToInt:
+            newConstArray[i].setIConst(bitCast<int>(static_cast<float>(unionArray[i].getDConst())));
+            break;
+        case EOpFloatBitsToUint:
+            newConstArray[i].setUConst(bitCast<unsigned int>(static_cast<float>(unionArray[i].getDConst())));
+            break;
+        case EOpIntBitsToFloat:
+            newConstArray[i].setDConst(bitCast<float>(unionArray[i].getIConst()));
+            break;
+        case EOpUintBitsToFloat:
+            newConstArray[i].setDConst(bitCast<float>(unionArray[i].getUConst()));
+            break;
+        case EOpDoubleBitsToInt64:
+            newConstArray[i].setI64Const(bitCast<long long>(unionArray[i].getDConst()));
+            break;
+        case EOpDoubleBitsToUint64:
+            newConstArray[i].setU64Const(bitCast<unsigned long long>(unionArray[i].getDConst()));
+            break;
+        case EOpInt64BitsToDouble:
+            newConstArray[i].setDConst(bitCast<double>(unionArray[i].getI64Const()));
+            break;
+        case EOpUint64BitsToDouble:
+            newConstArray[i].setDConst(bitCast<double>(unionArray[i].getU64Const()));
+            break;
+
         // TODO: 3.0 Functionality: unary constant folding: the rest of the ops have to be fleshed out
 
-        case EOpSinh:
-        case EOpCosh:
-        case EOpTanh:
-        case EOpAsinh:
-        case EOpAcosh:
-        case EOpAtanh:
-
-        case EOpFloatBitsToInt:
-        case EOpFloatBitsToUint:
-        case EOpIntBitsToFloat:
-        case EOpUintBitsToFloat:
-        case EOpDoubleBitsToInt64:
-        case EOpDoubleBitsToUint64:
-        case EOpInt64BitsToDouble:
-        case EOpUint64BitsToDouble:
         case EOpFloat16BitsToInt16:
         case EOpFloat16BitsToUint16:
         case EOpInt16BitsToFloat16:
