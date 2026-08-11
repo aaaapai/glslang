@@ -422,12 +422,12 @@ int TPpContext::eval(int token, int precedence, bool shortCircuit, int& res, boo
     if (token == PpAtomIdentifier) {
         if (strcmp("defined", ppToken->name) == 0) {
             if (! parseContext.isReadingHLSL() && isMacroInput()) {
-                if (parseContext.relaxedErrors())
-                    parseContext.ppWarn(ppToken->loc, "nonportable when expanded from macros for preprocessor expression",
-                        "defined", "");
-                else
-                    parseContext.ppError(ppToken->loc, "cannot use in preprocessor expression when expanded from macros",
-                        "defined", "");
+                // MobileGL: the C standard leaves `defined` produced by macro expansion
+                // undefined, but every desktop GL driver evaluates it and the GL CTS
+                // (shaders.preprocessor.conditional_inclusion.basic_2) requires it to
+                // work - keep the portability note as a warning and evaluate normally.
+                parseContext.ppWarn(ppToken->loc, "nonportable when expanded from macros for preprocessor expression",
+                    "defined", "");
             }
             bool needclose = 0;
             token = scanToken(ppToken);
