@@ -8007,6 +8007,48 @@ TIntermTyped* TParseContext::vkRelaxedRemapFunctionCall(const TSourceLoc& loc, T
         return nullptr;
     }
 
+    // The atomic-counter lowering below hands the parser an atomicAdd() the shader never
+    // wrote. On a desktop source below 430 that builtin carries a
+    // GL_ARB_shader_storage_buffer_object requirement (Initialize.cpp), so the gate would
+    // reject glslang's own rewrite - even though atomicCounterIncrement() itself is core
+    // GLSL from 4.20 and needs no extension at all. Grant the extension for exactly the
+    // span of the synthesized call and put the previous behavior back afterwards: a shader
+    // that writes atomicAdd() on a buffer block itself never reaches this function, so it
+    // is still rejected exactly as before.
+    class TScopedExtensionGrant {
+    public:
+        TScopedExtensionGrant(TMap<TString, TExtensionBehavior>& behavior, const char* extension, bool active)
+            : map(behavior), name(extension), engaged(active)
+        {
+            if (! engaged)
+                return;
+            const auto it = map.find(name);
+            existed = it != map.end();
+            if (existed)
+                previous = it->second;
+            map[name] = EBhEnable;
+        }
+        ~TScopedExtensionGrant()
+        {
+            if (! engaged)
+                return;
+            if (existed)
+                map[name] = previous;
+            else
+                map.erase(name);
+        }
+    private:
+        TMap<TString, TExtensionBehavior>& map;
+        TString name;
+        bool engaged;
+        bool existed = false;
+        TExtensionBehavior previous = EBhMissing;
+    };
+    const TString& relaxedName = function->getName();
+    const TScopedExtensionGrant atomicCounterGrant(
+        extensionBehavior, E_GL_ARB_shader_storage_buffer_object,
+        relaxedName == "atomicCounterIncrement" || relaxedName == "atomicCounterDecrement");
+
     if (function->getName() == "atomicCounterIncrement") {
         // change atomicCounterIncrement into an atomicAdd of 1
         TString name("atomicAdd");
@@ -8170,6 +8212,41 @@ void TParseContext::typeParametersCheck(const TSourceLoc& loc, const TPublicType
     }
 }
 
+// Snapshot a folded uniform initializer into the intermediate, in a form a client can apply
+// without knowing anything about glslang's pool-allocated types. Anything that cannot be
+// expressed as plain scalars (a struct, an opaque type) is skipped rather than half-recorded:
+// a partial record would be worse than none, since the client cannot tell it is partial.
+void TParseContext::recordUniformInitializer(const TString& identifier, const TType& type,
+                                             const TConstUnionArray& value)
+{
+    if (value.size() == 0 || type.isStruct() || type.containsOpaque())
+        return;
+
+    TIntermediate::TUniformInitializer record;
+    record.name = identifier.c_str();
+    record.basicType = type.getBasicType();
+    record.vectorSize = type.isMatrix() ? type.getMatrixRows() : type.getVectorSize();
+    record.matrixCols = type.isMatrix() ? type.getMatrixCols() : 0;
+    record.matrixRows = type.isMatrix() ? type.getMatrixRows() : 0;
+    record.arraySize = type.isSizedArray() ? type.getOuterArraySize() : 1;
+
+    for (int i = 0; i < value.size(); ++i) {
+        switch (value[i].getType()) {
+        case EbtInt:    record.intValues.push_back(value[i].getIConst()); break;
+        case EbtUint:   record.intValues.push_back(static_cast<long long>(value[i].getUConst())); break;
+        case EbtInt64:  record.intValues.push_back(value[i].getI64Const()); break;
+        case EbtUint64: record.intValues.push_back(static_cast<long long>(value[i].getU64Const())); break;
+        case EbtBool:   record.intValues.push_back(value[i].getBConst() ? 1 : 0); break;
+        case EbtFloat:
+        case EbtFloat16:
+        case EbtDouble: record.floatValues.push_back(value[i].getDConst()); break;
+        default:
+            return; // an element this snapshot cannot represent; record nothing at all
+        }
+    }
+    intermediate.addUniformInitializer(std::move(record));
+}
+
 bool TParseContext::vkRelaxedRemapUniformVariable(const TSourceLoc& loc, TString& identifier, const TPublicType& publicType,
     TArraySizes*, TIntermTyped* initializer, TType& type)
 {
@@ -8187,7 +8264,21 @@ bool TParseContext::vkRelaxedRemapUniformVariable(const TSourceLoc& loc, TString
     }
 
     if (initializer) {
-        warn(loc, "Ignoring initializer for uniform", identifier.c_str(), "");
+        // Fold the initializer against a throwaway variable of the declared type rather than
+        // dropping it. Two things came out of dropping it, both silent: an implicitly sized
+        // array had nothing left to take its size from ("uniform int a[] = int[](1,2,3);"
+        // became an unsizable array and failed to compile), and the VALUE - which desktop
+        // GLSL says the uniform reads until the application overwrites it - disappeared,
+        // because the remap below turns this uniform into a block member and SPIR-V cannot
+        // carry an initializer there. executeInitializer performs the same constantness
+        // checks and diagnostics it would in the non-relaxed path, and leaves the folded
+        // constant on the variable for recordUniformInitializer to hand to the client.
+        TVariable* folded = new TVariable(&identifier, type);
+        executeInitializer(loc, initializer, folded);
+        const TType& foldedType = folded->getType();
+        if (type.isUnsizedArray() && foldedType.isSizedArray())
+            type.changeOuterArraySize(foldedType.getOuterArraySize());
+        recordUniformInitializer(identifier, foldedType, folded->getConstArray());
         initializer = nullptr;
     }
 
@@ -10408,7 +10499,17 @@ void TParseContext::invariantCheck(const TSourceLoc& loc, const TQualifier& qual
 
     bool pipeOut = qualifier.isPipeOutput();
     bool pipeIn = qualifier.isPipeInput();
-    if ((version >= 300 && isEsProfile()) || (!isEsProfile() && version >= 420)) {
+    // Desktop GLSL keeps the pre-420 rule at every version: 'invariant' names a variable
+    // crossing a stage boundary, and a non-vertex stage's input is one of those. The 4.20
+    // spec's "only variables output from a shader can be candidates for invariance" describes
+    // where invariance is *decided*, not where the keyword may be written - redeclaring an
+    // input invariant is permitted and simply carries no effect of its own. Desktop drivers
+    // accept it (Mesa gates on is_varying_var, i.e. any varying but a vertex input), and
+    // KHR-GL42.shading_language_420pack.qualifier_order[_block] requires that they do: those
+    // cases compile the very same shader twice, once as '#version 400' and once as
+    // '#version 420', so gating on the version rejected at 420 what glslang had just accepted
+    // at 400. ES is untouched - ESSL 3.00+ really does forbid it.
+    if (version >= 300 && isEsProfile()) {
         if (! pipeOut)
             error(loc, "can only apply to an output", "invariant", "");
     } else {
