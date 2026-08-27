@@ -503,7 +503,6 @@ void TParseVersions::getPreamble(std::string& preamble)
             "#define GL_ARB_sample_shading 1\n"
             "#define GL_ARB_shader_image_size 1\n"
             "#define GL_ARB_shading_language_packing 1\n"
-            "#define GL_ARB_cull_distance 1\n"
             "#define GL_ARB_post_depth_coverage 1\n"
             "#define GL_ARB_fragment_shader_interlock 1\n"
             "#define GL_ARB_uniform_buffer_object 1\n"
@@ -623,6 +622,16 @@ void TParseVersions::getPreamble(std::string& preamble)
 
         if (spvVersion.spv == 0) {
             preamble += "#define GL_ARB_bindless_texture 1\n";
+        }
+
+        // GL_ARB_cull_distance. Conditional, unlike its neighbours in the literal above, because
+        // this one is NOT backed at every version: gl_CullDistance and the two gl_Max*
+        // constants exist from 400 upward (core from 450, extension-gated below it - see
+        // Initialize.cpp). Defining the macro where the built-ins do not exist would turn the
+        // idiomatic probe - `#ifdef GL_ARB_cull_distance` with a fallback else-branch - into a
+        // false positive that takes the cull branch and then fails to compile.
+        if (version >= 400) {
+            preamble += "#define GL_ARB_cull_distance 1\n";
         }
 
         if (version >= 150) {
