@@ -611,6 +611,55 @@ public:
     void setGlobalUniformBinding(unsigned int binding) { globalUniformBlockBinding = binding; }
     unsigned int getGlobalUniformBinding() const { return globalUniformBlockBinding; }
 
+    // A default-block uniform's initializer, folded to constants at parse time.
+    //
+    // Desktop GLSL 1.20+ lets a default-block uniform carry an initializer, and that value is
+    // what the uniform reads until the application overwrites it with glUniform*. Vulkan-relaxed
+    // parsing sweeps such uniforms into a uniform BLOCK, and a block member cannot carry an
+    // initializer in SPIR-V - so the value has nowhere to live in the generated module and used
+    // to be dropped outright, leaving the uniform silently zero. The CLIENT is the only party
+    // that can still honor it, by writing the value into the block's backing storage once the
+    // program links, so the folded constants are handed out here instead of discarded.
+    //
+    // Scalars appear in the same flattened order glslang folds them in: array element by array
+    // element, and within a matrix, column by column. Exactly one of the two value vectors is
+    // populated, chosen by basicType.
+    struct TUniformInitializer {
+        std::string name;
+        TBasicType basicType = EbtVoid;
+        int vectorSize = 1;  // components per vector; 1 for a scalar
+        int matrixCols = 0;  // 0 when the type is not a matrix
+        int matrixRows = 0;
+        int arraySize = 1;   // outer array element count; 1 when not an array
+        std::vector<long long> intValues;
+        std::vector<double> floatValues;
+    };
+    void addUniformInitializer(TUniformInitializer&& init) { uniformInitializers.push_back(std::move(init)); }
+    const std::vector<TUniformInitializer>& getUniformInitializers() const { return uniformInitializers; }
+
+    // A default-block uniform's explicit layout(location = N), recorded where Vulkan-relaxed
+    // rules DROP it.
+    //
+    // Desktop GLSL 4.3 / ARB_explicit_uniform_location lets a default-block uniform name the
+    // number glGetUniformLocation will answer for it. Vulkan-relaxed parsing sweeps such
+    // uniforms into a uniform BLOCK, where a location qualifier means nothing, so the
+    // qualifier is dropped with a warning - and once it is gone no later stage can tell the
+    // uniform ever carried one: mapIO sees layoutLocationEnd and reflection reports whatever
+    // the client's own assigner chose. The CLIENT is the only party that can still honor it,
+    // so the declared number is handed out here instead of discarded.
+    //
+    // arraySizes is the declared array shape, outer dimension first, and empty when the
+    // uniform is not an array. A client that keys these by REFLECTION name has to spell the
+    // same elements glslang's reflection will ("u[1][0]" for a float u[2][3]), and only the
+    // declaration knows the shape; a dimension glslang could not size appears as 0.
+    struct TUniformLocation {
+        std::string name;
+        int location = -1;
+        std::vector<int> arraySizes;
+    };
+    void addUniformLocation(TUniformLocation&& location) { uniformLocations.push_back(std::move(location)); }
+    const std::vector<TUniformLocation>& getUniformLocations() const { return uniformLocations; }
+
     void setAtomicCounterBlockName(const char* name) { atomicCounterBlockName = std::string(name); }
     const char* getAtomicCounterBlockName() const { return atomicCounterBlockName.c_str(); }
     void setAtomicCounterBlockSet(unsigned int set) { atomicCounterBlockSet = set; }
@@ -1223,6 +1272,8 @@ protected:
 
     std::string globalUniformBlockName;
     std::string atomicCounterBlockName;
+    std::vector<TUniformInitializer> uniformInitializers;
+    std::vector<TUniformLocation> uniformLocations;
     unsigned int globalUniformBlockSet;
     unsigned int globalUniformBlockBinding;
     unsigned int atomicCounterBlockSet;

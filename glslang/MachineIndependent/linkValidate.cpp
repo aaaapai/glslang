@@ -2754,7 +2754,8 @@ bool TIntermediate::isIoResizeArray(const TType& type, EShLanguage language) {
             ((language == EShLangGeometry    && type.getQualifier().storage == EvqVaryingIn) ||
             (language == EShLangTessControl && (type.getQualifier().storage == EvqVaryingIn || type.getQualifier().storage == EvqVaryingOut) &&
                 ! type.getQualifier().patch) ||
-            (language == EShLangTessEvaluation && type.getQualifier().storage == EvqVaryingIn) ||
+            (language == EShLangTessEvaluation && type.getQualifier().storage == EvqVaryingIn &&
+                ! type.getQualifier().patch) ||
             (language == EShLangFragment && type.getQualifier().storage == EvqVaryingIn &&
              (type.getQualifier().pervertexNV || type.getQualifier().pervertexEXT)) ||
             (language == EShLangMesh && type.getQualifier().storage == EvqVaryingOut &&

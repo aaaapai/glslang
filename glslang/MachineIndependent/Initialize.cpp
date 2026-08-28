@@ -5914,7 +5914,10 @@ void TBuiltIns::initialize(int version, EProfile profile, const SpvVersion& spvV
                     "vec4 gl_TexCoord[];"
                     "float gl_FogFragCoord;"
                     );
-            if (version >= 450)
+            // Core at 450, and available at 400-440 through GL_ARB_cull_distance. The built-in
+            // strings are assembled before any #extension directive has been seen, so the member
+            // is declared for the whole 400+ range and its USE is gated in identifyBuiltIns.
+            if (version >= 400)
                 stageBuiltins[EShLangVertex].append(
                     "float gl_CullDistance[];"
                     );
@@ -6052,9 +6055,12 @@ void TBuiltIns::initialize(int version, EProfile profile, const SpvVersion& spvV
                 "vec4 gl_TexCoord[];"
                 "float gl_FogFragCoord;"
                 );
-        if (version >= 450)
+        if (version >= 400)    // GL_ARB_cull_distance below 450
             stageBuiltins[EShLangGeometry].append(
                 "float gl_CullDistance[];"
+                );
+        if (version >= 450)
+            stageBuiltins[EShLangGeometry].append(
                 "vec4 gl_SecondaryPositionNV;"   // GL_NV_stereo_view_rendering
                 "vec4 gl_PositionPerViewNV[];"   // GL_NVX_multiview_per_view_attributes
                 );
@@ -6077,7 +6083,7 @@ void TBuiltIns::initialize(int version, EProfile profile, const SpvVersion& spvV
                 "vec4 gl_TexCoord[];"
                 "float gl_FogFragCoord;"
                 );
-        if (version >= 450)
+        if (version >= 400)    // GL_ARB_cull_distance below 450
             stageBuiltins[EShLangGeometry].append(
                 "float gl_CullDistance[];"
                 );
@@ -6181,7 +6187,7 @@ void TBuiltIns::initialize(int version, EProfile profile, const SpvVersion& spvV
                 "vec4 gl_TexCoord[];"
                 "float gl_FogFragCoord;"
                 );
-        if (version >= 450)
+        if (version >= 400)    // GL_ARB_cull_distance below 450
             stageBuiltins[EShLangTessControl].append(
                 "float gl_CullDistance[];"
             );
@@ -6279,7 +6285,7 @@ void TBuiltIns::initialize(int version, EProfile profile, const SpvVersion& spvV
                 "vec4 gl_TexCoord[];"
                 "float gl_FogFragCoord;"
                 );
-        if (version >= 450)
+        if (version >= 400)    // GL_ARB_cull_distance below 450
             stageBuiltins[EShLangTessEvaluation].append(
                 "float gl_CullDistance[];"
                 );
@@ -6423,9 +6429,13 @@ void TBuiltIns::initialize(int version, EProfile profile, const SpvVersion& spvV
                 "flat in int gl_ViewportIndex;"
                 );
 
-        if (version >= 450)
+        if (version >= 400)    // GL_ARB_cull_distance below 450
             stageBuiltins[EShLangFragment].append(
                 "in float gl_CullDistance[];"
+                );
+
+        if (version >= 450)
+            stageBuiltins[EShLangFragment].append(
                 "bool gl_HelperInvocation;"     // needs qualifier fixed later
                 );
 
@@ -8295,9 +8305,12 @@ void TBuiltIns::initialize(const TBuiltInResource &resources, int version, EProf
                         "vec4 gl_TexCoord[];"
                         "float gl_FogFragCoord;"
                         );
-                if (profile != EEsProfile && version >= 450)
+                if (profile != EEsProfile && version >= 400)    // GL_ARB_cull_distance below 450
                     s.append(
                         "float gl_CullDistance[];"
+                       );
+                if (profile != EEsProfile && version >= 450)
+                    s.append(
                         "vec4 gl_SecondaryPositionNV;"  // GL_NV_stereo_view_rendering
                         "vec4 gl_PositionPerViewNV[];"  // GL_NVX_multiview_per_view_attributes
                        );
@@ -8424,8 +8437,13 @@ void TBuiltIns::initialize(const TBuiltInResource &resources, int version, EProf
         s.append("\n");
     }
 
-    // GL_ARB_cull_distance
-    if (profile != EEsProfile && version >= 450) {
+    // GL_ARB_cull_distance: core at 450, and available at 400-440 through the extension. These
+    // two constants are what the conformance suite's cull-distance coverage compute shader reads,
+    // and it is emitted at #version 420 - so gating them on 450 alone made
+    // `#extension GL_ARB_cull_distance : require` succeed and then die on an undeclared
+    // identifier. They are plain constants in the common symbol table and touch no interface
+    // block, so lowering them costs nothing structurally; their USE is gated in identifyBuiltIns.
+    if (profile != EEsProfile && version >= 400) {
         snprintf(builtInConstant, maxSize, "const int gl_MaxCullDistances = %d;",                resources.maxCullDistances);
         s.append(builtInConstant);
         snprintf(builtInConstant, maxSize, "const int gl_MaxCombinedClipAndCullDistances = %d;", resources.maxCombinedClipAndCullDistances);
@@ -8563,6 +8581,20 @@ static void BuiltInVariable(const char* blockName, const char* name, TBuiltInVar
 //
 void TBuiltIns::identifyBuiltIns(int version, EProfile profile, const SpvVersion& spvVersion, EShLanguage language, TSymbolTable& symbolTable)
 {
+    // GL_ARB_cull_distance. gl_CullDistance is core at 450 and reachable at 400-440 only through
+    // the extension, but the built-in strings are assembled before any #extension directive has
+    // been seen - so the member is declared for the whole 400+ range and its USE is gated here.
+    // That gating is what the extension used to be commented out for ("need extension control
+    // over block members"): TAnonMember::setExtensions carries it into a member of the ANONYMOUS
+    // gl_PerVertex output block, and the two-argument form covers the named gl_in / gl_out
+    // instances. A stage that has no such block is skipped - setVariableExtensions returns early
+    // when the name is not in the table.
+    if (profile != EEsProfile && version >= 400 && version < 450) {
+        symbolTable.setVariableExtensions("gl_CullDistance", 1, &E_GL_ARB_cull_distance);
+        symbolTable.setVariableExtensions("gl_in", "gl_CullDistance", 1, &E_GL_ARB_cull_distance);
+        symbolTable.setVariableExtensions("gl_out", "gl_CullDistance", 1, &E_GL_ARB_cull_distance);
+    }
+
     //
     // Tag built-in variables and functions with additional qualifier and extension information
     // that cannot be declared with the text strings.
@@ -11238,6 +11270,15 @@ void TBuiltIns::identifyBuiltIns(int version, EProfile profile, const SpvVersion
     }
     if (profile != EEsProfile && version >= 150 && version < 410)
         symbolTable.setVariableExtensions("gl_MaxViewports", 1, &E_GL_ARB_viewport_array);
+    // GL_ARB_cull_distance's two constants, and the tessellation stages' gl_in member - all three
+    // live in the resource-dependent string, so they are gated here rather than in the
+    // context-independent overload. Core at 450; extension-only at 400-440.
+    if (profile != EEsProfile && version >= 400 && version < 450) {
+        symbolTable.setVariableExtensions("gl_MaxCullDistances", 1, &E_GL_ARB_cull_distance);
+        symbolTable.setVariableExtensions("gl_MaxCombinedClipAndCullDistances", 1, &E_GL_ARB_cull_distance);
+        if (language == EShLangTessControl || language == EShLangTessEvaluation)
+            symbolTable.setVariableExtensions("gl_in", "gl_CullDistance", 1, &E_GL_ARB_cull_distance);
+    }
 
     switch(language) {
     case EShLangFragment:

@@ -5684,7 +5684,11 @@ void TGlslangToSpvTraverser::decorateStructType(const glslang::TType& type,
                 addMeshNVDecoration(spvType, member, memberQualifier);
             }
         }
-        builder.addMemberDecoration(spvType, member, TranslateInvariantDecoration(memberQualifier));
+        // Same reasoning as the variable case in TGlslangToSpvTraverser::visitSymbol: an
+        // invariant member of an INPUT block says nothing, and re-emitting it into GLSL ES
+        // would be rejected there.
+        if (type.getQualifier().storage != glslang::EvqVaryingIn)
+            builder.addMemberDecoration(spvType, member, TranslateInvariantDecoration(memberQualifier));
 
         if (type.getBasicType() == glslang::EbtBlock &&
             qualifier.storage == glslang::EvqBuffer) {
@@ -10327,7 +10331,27 @@ spv::Id TGlslangToSpvTraverser::getSymbolId(const glslang::TIntermSymbol* symbol
         }
     }
 
-    builder.addDecoration(id, TranslateInvariantDecoration(symbol->getType().getQualifier()));
+    // 'invariant' constrains how a value is COMPUTED so that two programs computing it agree.
+    // That only means something where the value crosses a boundary the language cares about,
+    // i.e. a shader stage's output feeding a later stage. Two placements are legal to write
+    // and carry no effect at all, and both are dropped here rather than emitted:
+    //
+    //   * an INPUT. Redeclaring an input invariant restates what the producing stage already
+    //     decided; nothing downstream can act on it.
+    //   * a FRAGMENT output. It goes to the framebuffer, not to another stage, so there is no
+    //     second computation for it to agree with.
+    //
+    // Emitting them is not free. A consumer that turns this module back into GLSL ES -
+    // SPIRV-Cross does, for MobileGL's GLES backend - re-emits the decoration as an
+    // `invariant` qualifier, and ESSL rejects it in both positions: 3.00+ forbids it on
+    // inputs outright, and Qualcomm's compiler answers a fragment output with "'invariant' is
+    // only legal type-qualifer for shader outputs and varyings". Either way a shader that
+    // compiled becomes one the device driver refuses, and the draw silently disappears.
+    const bool invariantHasNoConsumer =
+        symbol->getType().getQualifier().isPipeInput() ||
+        (glslangIntermediate->getStage() == EShLangFragment && symbol->getType().getQualifier().isPipeOutput());
+    if (! invariantHasNoConsumer)
+        builder.addDecoration(id, TranslateInvariantDecoration(symbol->getType().getQualifier()));
     if (symbol->getQualifier().hasStream() && glslangIntermediate->isMultiStream()) {
         builder.addCapability(spv::Capability::GeometryStreams);
         builder.addDecoration(id, spv::Decoration::Stream, symbol->getQualifier().layoutStream);
