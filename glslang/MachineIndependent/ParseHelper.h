@@ -181,6 +181,11 @@ public:
 
     TSymbolTable& symbolTable;        // symbol table that goes with the current language, version, and profile
     TVector<TString> relaxedSymbols;
+    // Vulkan-relaxed: the member lists of ANONYMOUS struct types that contain opaque members
+    // (`uniform struct { ...; sampler2D s; } u;`). They have no type name for relaxedSymbols to
+    // find, but finish() must strip their opaque members all the same - left in, the struct lands
+    // in the default uniform block with a sampler inside it, which is invalid for Vulkan.
+    TVector<TTypeList*> relaxedAnonymousStructs;
     int statementNestingLevel;        // 0 if outside all flow control or compound statements
     int loopNestingLevel;             // 0 if outside all loops
     int structNestingLevel;           // 0 if outside structures
@@ -370,6 +375,7 @@ public:
     void recordUniformInitializer(const TString&, const TType&, const TConstUnionArray&);
     void recordUniformLocation(const TString&, const TType&);
     void atomicCounterOffsetCheck(const TSourceLoc&, const TString&, const TType&);
+    void relaxedAtomicCounterLayout(const TSourceLoc&, const TString&, TType&);
     bool vkRelaxedRemapUniformVariable(const TSourceLoc&, TString&, const TPublicType&, TArraySizes*, TIntermTyped*, TType&);
     void vkRelaxedRemapUniformMembers(const TSourceLoc&, const TPublicType&, const TType&, const TString&);
     void vkRelaxedRemapFunctionParameter(TFunction*, TParameter&, std::vector<int>* newParams = nullptr);

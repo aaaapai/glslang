@@ -8266,18 +8266,9 @@ void TParseContext::recordUniformLocation(const TString& identifier, const TType
 }
 
 // The two atomic-counter offset rules that are still checkable at the point where relaxed
-// rules fold the counter into a synthesized buffer block.
-//
-// fixOffset() is what enforces them for an ordinary parse, and it is UNREACHABLE from here:
-// vkRelaxedRemapUniformVariable returns to declareVariable's caller long before the
-// fixOffset() call at the end of that function, which is what the "xxTODO: use logic from
-// fixOffset()" note below refers to. Left unchecked, "layout(offset = 2) uniform atomic_uint
-// c;" - a compile-time error in GL 4.6 core 7.7 - parsed clean and only failed much later, or
-// not at all.
-//
-// The OVERLAP rule fixOffset() also carries is deliberately not here: it needs that
-// function's per-binding offset cursor (atomicUintOffsets / addUsedOffsets), which the
-// relaxed path does not maintain because it never assigns implicit offsets at all.
+// rules fold the counter into a synthesized buffer block: alignment, and the end of the
+// counter against gl_MaxAtomicCounterBufferSize. Called by relaxedAtomicCounterLayout() once
+// the counter's offset is final, implicit or explicit.
 void TParseContext::atomicCounterOffsetCheck(const TSourceLoc& loc, const TString& identifier, const TType& type)
 {
     const TQualifier& qualifier = type.getQualifier();
@@ -8308,6 +8299,57 @@ void TParseContext::atomicCounterOffsetCheck(const TSourceLoc& loc, const TStrin
     }
 }
 
+// What fixOffset() does for an ordinary parse, done where relaxed rules fold an atomic_uint
+// into a synthesized buffer block. fixOffset() is UNREACHABLE from there:
+// vkRelaxedRemapUniformVariable returns to declareVariable's caller long before the fixOffset()
+// call at the end of that function. Without this, a counter with no offset qualifier took
+// whatever the block's std430 packing gave it rather than the per-binding cursor GLSL 4.60
+// 4.4.6.3 defines ("layout(binding = 2, offset = 4) uniform atomic_uint;" followed by
+// "layout(binding = 2) uniform atomic_uint a;" put `a` at 0, not 4), two counters at the same
+// offset of one binding compiled, and so did an unsized counter array.
+//
+// The offset is written back onto the qualifier, where both reflection and the SPIR-V
+// generator honour it as the member's Offset.
+void TParseContext::relaxedAtomicCounterLayout(const TSourceLoc& loc, const TString& identifier, TType& type)
+{
+    TQualifier& qualifier = type.getQualifier();
+
+    // There is no default binding for atomic counters: a default declaration only sets the
+    // offset cursor of the binding it names. Auto-mapped bindings do not apply either - the
+    // binding IS the counter's buffer binding point, which the application binds by number.
+    if (!qualifier.hasBinding()) {
+        error(loc, "layout(binding=X) is required", "atomic_uint", "");
+        return;
+    }
+    if (qualifier.layoutBinding >= (unsigned int)resources.maxAtomicCounterBindings) {
+        error(loc, "atomic_uint binding is too large; see gl_MaxAtomicCounterBindings", "binding", "");
+        return;
+    }
+
+    int numOffsets = 4;
+    if (type.isArray()) {
+        if (type.isSizedArray() && !type.getArraySizes()->isInnerUnsized())
+            numOffsets *= type.getCumulativeArraySize();
+        else {
+            // "It is a compile-time error to declare an unsized array of atomic_uint."
+            error(loc, "array must be explicitly sized", "atomic_uint", "");
+            return;
+        }
+    }
+
+    const int binding = qualifier.layoutBinding;
+    const int offset = qualifier.hasOffset() ? qualifier.layoutOffset : atomicUintOffsets[binding];
+    qualifier.layoutOffset = offset;
+    atomicCounterOffsetCheck(loc, identifier, type);
+
+    const int repeated = intermediate.addUsedOffsets(binding, offset, numOffsets);
+    if (repeated >= 0)
+        error(loc, "atomic counters sharing the same offset:", "offset", "%d", repeated);
+
+    // Bump the default offset
+    atomicUintOffsets[binding] = offset + numOffsets;
+}
+
 bool TParseContext::vkRelaxedRemapUniformVariable(const TSourceLoc& loc, TString& identifier, const TPublicType& publicType,
     TArraySizes*, TIntermTyped* initializer, TType& type)
 {
@@ -8317,6 +8359,15 @@ bool TParseContext::vkRelaxedRemapUniformVariable(const TSourceLoc& loc, TString
         type.getQualifier().storage != EvqUniform ||
         !(type.containsNonOpaque() || type.getBasicType() == EbtAtomicUint || (type.containsSampler() && type.isStruct()))) {
         return false;
+    }
+
+    if (type.getQualifier().hasLocation() && type.isAtomic()) {
+        // Not one of the qualifiers relaxed rules may drop: GLSL 4.60 4.4.3 gives a location to
+        // default-block uniforms only, and an atomic counter is addressed by binding and offset.
+        // The ordinary parse raises this in layoutObjectCheck(); the counter is folded into a
+        // buffer block before that check could see it.
+        error(loc, "cannot specify on atomic counter", "location", "");
+        type.getQualifier().layoutLocation = TQualifier::layoutLocationEnd;
     }
 
     if (type.getQualifier().hasLocation()) {
@@ -8364,9 +8415,8 @@ bool TParseContext::vkRelaxedRemapUniformVariable(const TSourceLoc& loc, TString
 
     // Convert atomic_uint into members of a buffer block
     if (type.isAtomic()) {
-        // While it still IS one, and while the offset is still on the qualifier: setBasicType
-        // below makes isAtomic() false and explicitOffset is cleared a few lines after that.
-        atomicCounterOffsetCheck(loc, identifier, type);
+        // While it still IS one: setBasicType below makes isAtomic() false.
+        relaxedAtomicCounterLayout(loc, identifier, type);
 
         type.setBasicType(EbtUint);
         type.getQualifier().storage = EvqBuffer;
@@ -8374,7 +8424,6 @@ bool TParseContext::vkRelaxedRemapUniformVariable(const TSourceLoc& loc, TString
         type.getQualifier().volatil = true;
         type.getQualifier().coherent = true;
 
-        // xxTODO: use logic from fixOffset() to apply explicit member offset
         bufferBinding = type.getQualifier().layoutBinding;
         type.getQualifier().layoutBinding = TQualifier::layoutBindingEnd;
         type.getQualifier().explicitOffset = false;

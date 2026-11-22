@@ -3715,6 +3715,8 @@ struct_specifier
     }
     | STRUCT LEFT_BRACE { parseContext.nestedStructCheck($1.loc); } struct_declaration_list RIGHT_BRACE {
         TType* structure = new TType($4, TString(""));
+        if (parseContext.spvVersion.vulkanRelaxed && structure->containsOpaque())
+            parseContext.relaxedAnonymousStructs.push_back(structure->getWritableStruct());
         $$.init($1.loc);
         $$.basicType = EbtStruct;
         $$.userDef = structure;

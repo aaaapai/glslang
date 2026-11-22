@@ -730,11 +730,8 @@ void TParseContextBase::finish()
     if (parsingBuiltins)
         return;
 
-    for (const TString& relaxedSymbol : relaxedSymbols)
-    {
-        TSymbol* symbol = symbolTable.find(relaxedSymbol);
-        TType& type = symbol->getWritableType();
-        for (const TTypeLoc& typeLoc : *type.getStruct())
+    const auto stripOpaqueMembers = [](const TTypeList& members) {
+        for (const TTypeLoc& typeLoc : members)
         {
             if (typeLoc.type->isOpaque())
             {
@@ -746,7 +743,15 @@ void TParseContextBase::finish()
                 typeLoc.type->setFieldName(fieldName);
             }
         }
+    };
+    for (const TString& relaxedSymbol : relaxedSymbols)
+    {
+        TSymbol* symbol = symbolTable.find(relaxedSymbol);
+        TType& type = symbol->getWritableType();
+        stripOpaqueMembers(*type.getStruct());
     }
+    for (const TTypeList* members : relaxedAnonymousStructs)
+        stripOpaqueMembers(*members);
 
     // Transfer the linkage symbols to AST nodes, preserving order.
     TIntermAggregate* linkage = new TIntermAggregate;

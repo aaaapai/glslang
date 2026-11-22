@@ -11432,6 +11432,8 @@ yyreduce:
 #line 3716 "MachineIndependent/glslang.y"
                                                                                                         {
         TType* structure = new TType((yyvsp[-1].interm.typeList), TString(""));
+        if (parseContext.spvVersion.vulkanRelaxed && structure->containsOpaque())
+            parseContext.relaxedAnonymousStructs.push_back(structure->getWritableStruct());
         (yyval.interm.type).init((yyvsp[-4].lex).loc);
         (yyval.interm.type).basicType = EbtStruct;
         (yyval.interm.type).userDef = structure;
